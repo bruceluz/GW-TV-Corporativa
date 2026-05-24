@@ -506,8 +506,11 @@
   .bday-pill.pill-hoje {
     background: linear-gradient(135deg, #f59e0b, #fbbf24);
     color: #7c2d12;
-    box-shadow: 0 0 14px rgba(251,191,36,0.5);
+    box-shadow: 0 0 16px rgba(251,191,36,0.6);
     font-weight: 800;
+    font-size: 14px;
+    padding: 5px 16px;
+    animation: pulse-bday 2.5s ease-in-out infinite;
   }
   .bday-pill.pill-proximos {
     background: rgba(249,115,22,0.22);
@@ -523,23 +526,6 @@
   }
   .pill-nome { font-weight: inherit; }
   .pill-setor { font-size: 11px; opacity: 0.7; }
-  .pill-dia   { font-size: 11px; opacity: 0.6; }
-  .pill-foto {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid rgba(124,45,18,0.6);
-    flex-shrink: 0;
-  }
-  .pill-avatar {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: rgba(124,45,18,0.5);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 900;
-    flex-shrink: 0;
-    color: #7c2d12;
-  }
 
   /* ─── ANIMAÇÕES ────────────────────────────────── */
   @keyframes ticker {
@@ -558,6 +544,75 @@
     0%, 100% { opacity: 1; }
     50%       { opacity: 0.2; }
   }
+  @keyframes pulse-bday {
+    0%, 100% { box-shadow: 0 0 10px rgba(251,191,36,0.5); }
+    50%       { box-shadow: 0 0 26px rgba(251,191,36,0.9); }
+  }
+
+  /* ─── MEDIA BOX ─────────────────────────────────────── */
+  #media-box {
+    position: absolute;
+    overflow: hidden;
+    border: 3px solid var(--gw-ciano);
+    border-radius: 14px;
+    background: #000514;
+    z-index: 4;
+    display: none;
+    box-shadow: 0 0 40px rgba(0,180,216,0.25), 0 8px 32px rgba(0,0,0,0.5);
+  }
+  #media-box.pos-tl { top: 20px; left: 20px; }
+  #media-box.pos-tr { top: 20px; right: calc(var(--painel-larg) + 20px); }
+  #media-box.pos-bl { bottom: calc(var(--rodape-total) + 20px); left: 20px; }
+  #media-box.pos-br { bottom: calc(var(--rodape-total) + 20px); right: calc(var(--painel-larg) + 20px); }
+  #media-box.pos-centro {
+    top: calc((1080px - var(--rodape-total)) / 2);
+    left: calc((1920px - var(--painel-larg)) / 2);
+    transform: translate(-50%, -50%);
+  }
+  #media-box.pos-full { top: 0; left: 0; border-radius: 0; border: none; }
+  #media-box.tam-p { width: 380px; height: 214px; }
+  #media-box.tam-m { width: 560px; height: 315px; }
+  #media-box.tam-g { width: 760px; height: 428px; }
+  #media-box.tam-full {
+    width: calc(1920px - var(--painel-larg));
+    height: calc(1080px - var(--rodape-total));
+  }
+  #media-slides { width: 100%; height: 100%; position: relative; }
+  .mslide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .mslide.ativo { opacity: 1; z-index: 1; }
+  .mslide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .mslide iframe, .mslide video { width: 100%; height: 100%; border: none; display: block; }
+  #media-caption {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 24px 16px 10px;
+    background: linear-gradient(transparent, rgba(0,10,30,0.85));
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 2;
+    display: none;
+  }
+  #media-indicators {
+    position: absolute;
+    bottom: 10px; left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 3;
+  }
+  .mdot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.35);
+    transition: background 0.3s, transform 0.3s;
+  }
+  .mdot.ativo { background: var(--gw-ciano); transform: scale(1.35); }
 </style>
 </head>
 <body>
@@ -581,6 +636,13 @@
 <div id="ao-vivo">
   <div class="dot"></div>
   <span>AO VIVO</span>
+</div>
+
+<!-- Slideshow de Mídia Corporativa -->
+<div id="media-box">
+  <div id="media-slides"></div>
+  <div id="media-caption"></div>
+  <div id="media-indicators"></div>
 </div>
 
 <!-- Faixa de aniversariantes no rodapé -->
@@ -655,6 +717,9 @@
     <button class="btn-iniciar" onclick="iniciarCamera()">Iniciar TV</button>
     <button class="btn-sem-camera" onclick="iniciarSemCamera()">Continuar sem câmera (só painel)</button>
     <a href="admin.html" class="admin-link" target="_blank">Abrir Painel de Controle (Admin)</a>
+    <p style="color:rgba(255,255,255,0.22);font-size:11px;margin-top:18px;letter-spacing:0.5px">
+      Dificuldades ou bugs? Contate o setor de Desenvolvimento.
+    </p>
   </div>
 </div>
 
@@ -775,6 +840,7 @@ channel.onmessage = (e) => {
     aplicarConfigs(e.data.config);
     renderBdayStrip();
     renderContratacoes();
+    renderMediaBox();
   }
 };
 
@@ -833,19 +899,81 @@ function renderBdayStrip() {
       ? ` · ${String(p.dia).padStart(2,'0')}/${String(p.mes).padStart(2,'0')}`
       : (p.dia ? ` · dia ${p.dia}` : '');
 
-    let avatarHtml = '';
-    if (p.diffDias === 0) {
-      const iniciais = p.nome.split(' ').map(x => x[0]).slice(0, 2).join('').toUpperCase();
-      avatarHtml = p.foto
-        ? `<img src="${p.foto}" class="pill-foto" alt="">`
-        : `<span class="pill-avatar">${iniciais}</span>`;
-    }
-
     const emoji = p.diffDias === 0 ? '🎂 ' : '';
-    return `<span class="bday-pill ${cls}">${avatarHtml}${emoji}<span class="pill-nome">${p.nome}</span><span class="pill-setor"> · ${p.setor}${dataLabel}</span></span>`;
+    const hojeTag = p.diffDias === 0 ? ' <span style="font-size:10px;background:rgba(124,45,18,0.3);border-radius:8px;padding:1px 6px;font-weight:900">HOJE!</span>' : '';
+    return `<span class="bday-pill ${cls}">${emoji}<span class="pill-nome">${p.nome}</span>${hojeTag}<span class="pill-setor"> · ${p.setor}${dataLabel}</span></span>`;
   }).join('');
 
   strip.style.display = 'flex';
+}
+
+// ─── MEDIA SLIDESHOW ──────────────────────────────────────────────
+let _mediaTimer = null;
+let _mediaIdx   = 0;
+
+function ytId(url) {
+  const m = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+function renderMediaBox() {
+  const cfg = carregarConfigs();
+  const media = cfg.media || {};
+  const box = document.getElementById('media-box');
+  clearInterval(_mediaTimer);
+
+  if (!media.ativo || !media.itens || media.itens.length === 0) {
+    box.style.display = 'none';
+    return;
+  }
+
+  const posicao = media.posicao || 'tl';
+  const tamanho = media.tamanho || 'm';
+  box.className = `pos-${posicao} tam-${tamanho}`;
+  box.style.display = 'block';
+
+  const slidesEl = document.getElementById('media-slides');
+  const capEl    = document.getElementById('media-caption');
+  const dotsEl   = document.getElementById('media-indicators');
+  const itens    = media.itens;
+
+  slidesEl.innerHTML = itens.map((item, i) => {
+    let conteudo;
+    if (item.tipo === 'video') {
+      const id = ytId(item.url || '');
+      if (id) {
+        conteudo = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0" allow="autoplay;encrypted-media" allowfullscreen></iframe>`;
+      } else {
+        conteudo = `<video src="${item.url||''}" autoplay muted loop playsinline></video>`;
+      }
+    } else {
+      conteudo = `<img src="${item.src||''}" alt="${item.titulo||''}">`;
+    }
+    return `<div class="mslide${i===0?' ativo':''}">${conteudo}</div>`;
+  }).join('');
+
+  dotsEl.innerHTML = itens.map((_, i) =>
+    `<div class="mdot${i===0?' ativo':''}"></div>`
+  ).join('');
+
+  _mediaIdx = 0;
+  atualizarCaption(itens[0], capEl);
+
+  if (itens.length > 1) {
+    const dur = (media.duracao || 8) * 1000;
+    _mediaTimer = setInterval(() => {
+      _mediaIdx = (_mediaIdx + 1) % itens.length;
+      slidesEl.querySelectorAll('.mslide').forEach((s, i) => s.classList.toggle('ativo', i === _mediaIdx));
+      dotsEl.querySelectorAll('.mdot').forEach((d, i) => d.classList.toggle('ativo', i === _mediaIdx));
+      atualizarCaption(itens[_mediaIdx], capEl);
+    }, dur);
+  }
+}
+
+function atualizarCaption(item, el) {
+  const tit = item ? item.titulo : '';
+  el.textContent = tit || '';
+  el.style.display = tit ? 'block' : 'none';
 }
 
 // ─── CARD FLUTUANTE (novas contratações) ──────────────────────────
@@ -876,6 +1004,7 @@ function renderContratacoes() {
   aplicarConfigs(carregarConfigs());
   renderBdayStrip();
   renderContratacoes();
+  renderMediaBox();
   await listarDispositivos();
 
   // Se já tem câmera salva, pergunta se quer reconectar automaticamente

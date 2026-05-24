@@ -446,6 +446,61 @@
     </div>
   </div>
 
+  <!-- ══ MÍDIA CORPORATIVA ════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icone">🖼️</div>
+      <div>
+        <h2>Mídia Corporativa</h2>
+        <p>Slideshow de imagens e vídeos exibido na TV</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="linha-dupla" style="margin-bottom:16px">
+        <div class="campo" style="margin:0">
+          <label>Posição na tela</label>
+          <select id="media-posicao" onchange="config.media.posicao=this.value">
+            <option value="tl">Canto superior esquerdo</option>
+            <option value="tr">Canto superior direito</option>
+            <option value="bl">Canto inferior esquerdo</option>
+            <option value="br">Canto inferior direito</option>
+            <option value="centro">Centro da tela</option>
+            <option value="full">Tela cheia (área do canal)</option>
+          </select>
+        </div>
+        <div class="campo" style="margin:0">
+          <label>Tamanho</label>
+          <select id="media-tamanho" onchange="config.media.tamanho=this.value">
+            <option value="p">Pequeno (380×214)</option>
+            <option value="m">Médio (560×315)</option>
+            <option value="g">Grande (760×428)</option>
+            <option value="full">Tela cheia</option>
+          </select>
+        </div>
+      </div>
+      <div class="linha-dupla" style="margin-bottom:20px;align-items:flex-end">
+        <div class="campo" style="margin:0">
+          <label>Duração por slide (segundos)</label>
+          <input type="text" id="media-duracao" placeholder="8"
+            oninput="config.media.duracao=parseInt(this.value)||8">
+        </div>
+        <div class="campo" style="margin:0;display:flex;align-items:center;gap:10px;padding-bottom:2px">
+          <label class="toggle-switch" style="margin:0">
+            <input type="checkbox" id="media-ativo" onchange="config.media.ativo=this.checked">
+            <span class="toggle-slider"></span>
+          </label>
+          <span style="font-size:13px;font-weight:600;color:var(--text)">Exibir na TV</span>
+        </div>
+      </div>
+      <div id="lista-media-itens" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn-adicionar" style="flex:1;margin:0" onclick="document.getElementById('media-img-input').click()">🖼️ Adicionar Imagens</button>
+        <button class="btn-adicionar" style="flex:1;margin:0;border-color:var(--gw-ciano);color:var(--gw-ciano)" onclick="adicionarVideoMedia()">▶ Adicionar Vídeo (YouTube/URL)</button>
+        <input type="file" id="media-img-input" accept="image/*" multiple style="display:none" onchange="adicionarImagensMedia(this)">
+      </div>
+    </div>
+  </div>
+
   <!-- ══ APROVAÇÃO / LINKS ═════════════════════════════════ -->
   <div class="card">
     <div class="card-header">
@@ -469,6 +524,10 @@
   <button class="btn-salvar" onclick="salvarTudo()">
     Aplicar na TV Agora
   </button>
+
+  <p style="text-align:center;color:var(--muted);font-size:12px;margin-top:8px;padding-bottom:8px">
+    Dificuldades ou bugs? Entre em contato com o setor de Desenvolvimento.
+  </p>
 
 </main>
 
@@ -607,60 +666,33 @@ function renderAniversariantes() {
     c.innerHTML = '<p style="color:#8099AA;font-size:14px;padding:8px 0">Nenhum aniversariante cadastrado.</p>';
     return;
   }
-  c.innerHTML = config.aniversariantes.map((p, i) => {
-    const fotoSrc = p.foto || '';
-    const avatarHtml = fotoSrc
-      ? `<img src="${fotoSrc}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--gw-ciano);flex-shrink:0">`
-      : `<div style="width:46px;height:46px;border-radius:50%;background:var(--gw-azul);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0">${(p.nome||'?')[0].toUpperCase()}</div>`;
-    return `
+  c.innerHTML = config.aniversariantes.map((p, i) => `
     <div class="comunicado-form" style="margin-bottom:10px">
       <div class="com-header">
-        <span class="com-num">🎂 ${p.nome || 'Aniversariante ' + (i+1)}</span>
+        <span class="com-num" id="aniv-label-${i}">🎂 ${p.nome || 'Aniversariante ' + (i+1)}</span>
         <div class="com-acoes">
           <button class="btn-remover" onclick="removerAniversariante(${i})">✕</button>
         </div>
       </div>
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:4px">
-          ${avatarHtml}
-          <button onclick="document.getElementById('foto-input-${i}').click()"
-            style="font-size:10px;background:none;border:1px solid var(--border);border-radius:4px;padding:2px 6px;cursor:pointer;color:var(--muted)">foto</button>
-          <input type="file" id="foto-input-${i}" accept="image/*" style="display:none"
-            onchange="carregarFoto(this, ${i})">
+      <div class="com-campos" style="margin-bottom:10px">
+        <div class="campo" style="margin:0">
+          <label>Nome completo</label>
+          <input type="text" value="${p.nome||''}" placeholder="Nome do colaborador"
+            oninput="config.aniversariantes[${i}].nome=this.value;const el=document.getElementById('aniv-label-${i}');if(el)el.textContent='🎂 '+(this.value||'Aniversariante ${i+1}')">
         </div>
-        <div style="flex:1">
-          <div class="com-campos" style="margin-bottom:10px">
-            <div class="campo" style="margin:0">
-              <label>Nome completo</label>
-              <input type="text" value="${p.nome||''}" placeholder="Nome do colaborador"
-                oninput="config.aniversariantes[${i}].nome=this.value;renderAniversariantes()">
-            </div>
-            <div class="campo" style="margin:0">
-              <label>Data (DD/MM)</label>
-              <input type="text" value="${p.data||p.dia||''}" placeholder="Ex: 24/05"
-                oninput="config.aniversariantes[${i}].data=this.value;delete config.aniversariantes[${i}].dia">
-            </div>
-          </div>
-          <div class="campo" style="margin:0">
-            <label>Setor / Área</label>
-            <input type="text" value="${p.setor||''}" placeholder="Ex: RH, Produção..."
-              oninput="config.aniversariantes[${i}].setor=this.value">
-          </div>
+        <div class="campo" style="margin:0">
+          <label>Data (DD/MM)</label>
+          <input type="text" value="${p.data||p.dia||''}" placeholder="Ex: 24/05"
+            oninput="config.aniversariantes[${i}].data=this.value;delete config.aniversariantes[${i}].dia">
         </div>
       </div>
-    </div>`;
-  }).join('');
-}
-
-function carregarFoto(input, i) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    config.aniversariantes[i].foto = e.target.result;
-    renderAniversariantes();
-  };
-  reader.readAsDataURL(file);
+      <div class="campo" style="margin:0">
+        <label>Setor / Área</label>
+        <input type="text" value="${p.setor||''}" placeholder="Ex: RH, Produção..."
+          oninput="config.aniversariantes[${i}].setor=this.value">
+      </div>
+    </div>
+  `).join('');
 }
 
 function adicionarAniversariante() {
@@ -708,10 +740,14 @@ function importarCSV(input) {
 function renderContratacoes() {
   if (!config.contratacoes) config.contratacoes = [];
   const c = document.getElementById('lista-contratacoes');
+  if (config.contratacoes.length === 0) {
+    c.innerHTML = '<p style="color:#8099AA;font-size:14px;padding:8px 0">Nenhuma nova contratação cadastrada.</p>';
+    return;
+  }
   c.innerHTML = config.contratacoes.map((p, i) => `
     <div class="comunicado-form" style="margin-bottom:10px">
       <div class="com-header">
-        <span class="com-num">⭐ ${p.nome || 'Novo colaborador ' + (i+1)}</span>
+        <span class="com-num" id="cont-label-${i}">⭐ ${p.nome || 'Novo colaborador ' + (i+1)}</span>
         <div class="com-acoes">
           <button class="btn-remover" onclick="removerContratacao(${i})">✕</button>
         </div>
@@ -720,7 +756,7 @@ function renderContratacoes() {
         <div class="campo" style="margin:0">
           <label>Nome completo</label>
           <input type="text" value="${p.nome||''}" placeholder="Nome do novo colaborador"
-            oninput="config.contratacoes[${i}].nome=this.value;renderContratacoes()">
+            oninput="config.contratacoes[${i}].nome=this.value;const el=document.getElementById('cont-label-${i}');if(el)el.textContent='⭐ '+(this.value||'Novo colaborador ${i+1}')">
         </div>
         <div class="campo" style="margin:0">
           <label>Setor / Cargo</label>
@@ -729,7 +765,7 @@ function renderContratacoes() {
         </div>
       </div>
     </div>
-  `).join('') || '<p style="color:#8099AA;font-size:14px;padding:8px 0">Nenhuma nova contratação cadastrada.</p>';
+  `).join('');
 }
 function adicionarContratacao() {
   if (!config.contratacoes) config.contratacoes = [];
@@ -741,12 +777,83 @@ function removerContratacao(i) {
   renderContratacoes();
 }
 
+// ─── MÍDIA CORPORATIVA ───────────────────────────────────────────────
+function renderMediaAdmin() {
+  if (!config.media) config.media = { ativo: false, posicao: 'tl', tamanho: 'm', duracao: 8, itens: [] };
+  const m = config.media;
+  document.getElementById('media-posicao').value = m.posicao || 'tl';
+  document.getElementById('media-tamanho').value = m.tamanho || 'm';
+  document.getElementById('media-duracao').value = m.duracao || 8;
+  document.getElementById('media-ativo').checked = !!m.ativo;
+
+  const lista = document.getElementById('lista-media-itens');
+  if (!m.itens || m.itens.length === 0) {
+    lista.innerHTML = '<p style="color:#8099AA;font-size:14px">Nenhum item. Adicione imagens ou vídeos acima.</p>';
+    return;
+  }
+  lista.innerHTML = m.itens.map((item, i) => {
+    const label = item.titulo || (item.tipo === 'video' ? (item.url || 'Vídeo') : ('Imagem ' + (i+1)));
+    return `
+    <div class="comunicado-form" style="display:flex;align-items:center;gap:12px;padding:10px 14px;margin:0">
+      <span style="font-size:20px">${item.tipo === 'video' ? '▶' : '🖼️'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px">${label}</div>
+        <input type="text" value="${item.titulo||''}" placeholder="Legenda (opcional)"
+          style="width:100%;font-size:12px;padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:white"
+          oninput="config.media.itens[${i}].titulo=this.value">
+      </div>
+      <div style="display:flex;gap:4px;flex-shrink:0">
+        ${i > 0 ? `<button class="btn-remover" onclick="moverMedia(${i},-1)" title="Subir" style="font-size:13px">↑</button>` : ''}
+        ${i < m.itens.length-1 ? `<button class="btn-remover" onclick="moverMedia(${i},1)" title="Descer" style="font-size:13px">↓</button>` : ''}
+        <button class="btn-remover" onclick="removerMedia(${i})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function adicionarImagensMedia(input) {
+  if (!config.media) config.media = { ativo: true, posicao: 'tl', tamanho: 'm', duracao: 8, itens: [] };
+  const files = Array.from(input.files);
+  let loaded = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      config.media.itens.push({ tipo: 'imagem', src: e.target.result, titulo: '' });
+      if (++loaded === files.length) renderMediaAdmin();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function adicionarVideoMedia() {
+  const url = prompt('Cole a URL do YouTube ou link direto do vídeo:');
+  if (!url || !url.trim()) return;
+  if (!config.media) config.media = { ativo: true, posicao: 'tl', tamanho: 'm', duracao: 8, itens: [] };
+  config.media.itens.push({ tipo: 'video', url: url.trim(), titulo: '' });
+  renderMediaAdmin();
+}
+
+function removerMedia(i) {
+  config.media.itens.splice(i, 1);
+  renderMediaAdmin();
+}
+
+function moverMedia(i, dir) {
+  const itens = config.media.itens;
+  const j = i + dir;
+  if (j < 0 || j >= itens.length) return;
+  [itens[i], itens[j]] = [itens[j], itens[i]];
+  renderMediaAdmin();
+}
+
 // ─── INIT ────────────────────────────────────────────────────────────
 function init() {
   config = carregarConfigs();
   renderComunicados();
   renderAniversariantes();
   renderContratacoes();
+  renderMediaAdmin();
   document.getElementById('ticker-input').value  = config.ticker  || DEFAULTS.ticker;
   document.getElementById('site-input').value    = config.site    || DEFAULTS.site;
   document.getElementById('contato-input').value = config.contato || DEFAULTS.contato;
