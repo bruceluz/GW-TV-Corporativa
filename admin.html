@@ -411,6 +411,55 @@
     </div>
   </div>
 
+  <!-- ══ ANIVERSARIANTES ══════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icone">🎂</div>
+      <div>
+        <h2>Aniversariantes do Mês</h2>
+        <p>Aparecem no canto inferior esquerdo da TV com destaque especial no dia</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="lista-aniversariantes"></div>
+      <button class="btn-adicionar" onclick="adicionarAniversariante()">+ Adicionar aniversariante</button>
+    </div>
+  </div>
+
+  <!-- ══ NOVAS CONTRATAÇÕES ════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icone">⭐</div>
+      <div>
+        <h2>Novas Contratações</h2>
+        <p>Aparecem no canto da TV com mensagem de boas-vindas</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="lista-contratacoes"></div>
+      <button class="btn-adicionar" onclick="adicionarContratacao()">+ Adicionar novo colaborador</button>
+    </div>
+  </div>
+
+  <!-- ══ APROVAÇÃO / LINKS ═════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icone">📢</div>
+      <div>
+        <h2>Solicitações de Comunicado</h2>
+        <p>Funcionários podem solicitar comunicados para a TV</p>
+      </div>
+    </div>
+    <div class="card-body" style="display:flex; gap:12px; flex-wrap:wrap">
+      <a href="solicitar.html" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:#E8F4FF;border:2px solid var(--gw-azul);color:var(--gw-azul);padding:14px;border-radius:10px;font-weight:700;text-decoration:none;font-size:14px">
+        📋 Abrir formulário de solicitação
+      </a>
+      <a href="aprovacao.html" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:#ECFDF5;border:2px solid #10B981;color:#065F46;padding:14px;border-radius:10px;font-weight:700;text-decoration:none;font-size:14px" id="link-aprovacao">
+        ✓ Painel de aprovação
+      </a>
+    </div>
+  </div>
+
   <!-- ══ BOTÃO SALVAR ══════════════════════════════════════ -->
   <button class="btn-salvar" onclick="salvarTudo()">
     Aplicar na TV Agora
@@ -522,7 +571,7 @@ function coletarFormulario() {
   config.ticker  = document.getElementById('ticker-input').value;
   config.site    = document.getElementById('site-input').value;
   config.contato = document.getElementById('contato-input').value;
-  // comunicados já são atualizados em tempo real
+  // aniversariantes e contratações já são atualizados em tempo real nos inputs
 }
 
 function salvarTudo() {
@@ -544,11 +593,93 @@ function mostrarToast() {
 }
 
 // ─── INICIALIZAÇÃO ────────────────────────────────────────────────────
+// ─── ANIVERSARIANTES ─────────────────────────────────────────────────
+function renderAniversariantes() {
+  if (!config.aniversariantes) config.aniversariantes = [];
+  const c = document.getElementById('lista-aniversariantes');
+  c.innerHTML = config.aniversariantes.map((p, i) => `
+    <div class="comunicado-form" style="margin-bottom:10px">
+      <div class="com-header">
+        <span class="com-num">🎂 ${p.nome || 'Aniversariante ' + (i+1)}</span>
+        <div class="com-acoes">
+          <button class="btn-remover" onclick="removerAniversariante(${i})">✕</button>
+        </div>
+      </div>
+      <div class="com-campos">
+        <div class="campo" style="margin:0">
+          <label>Nome completo</label>
+          <input type="text" value="${p.nome||''}" placeholder="Nome do colaborador"
+            oninput="config.aniversariantes[${i}].nome=this.value;renderAniversariantes()">
+        </div>
+        <div class="campo" style="margin:0">
+          <label>Dia do aniversário</label>
+          <input type="text" value="${p.dia||''}" placeholder="Ex: 24"
+            oninput="config.aniversariantes[${i}].dia=this.value">
+        </div>
+      </div>
+      <div class="campo" style="margin:0;margin-top:10px">
+        <label>Setor / Área</label>
+        <input type="text" value="${p.setor||''}" placeholder="Ex: RH, Produção..."
+          oninput="config.aniversariantes[${i}].setor=this.value">
+      </div>
+    </div>
+  `).join('') || '<p style="color:#8099AA;font-size:14px;padding:8px 0">Nenhum aniversariante cadastrado.</p>';
+}
+function adicionarAniversariante() {
+  if (!config.aniversariantes) config.aniversariantes = [];
+  config.aniversariantes.push({ nome:'', dia:'', setor:'', ativo:true });
+  renderAniversariantes();
+}
+function removerAniversariante(i) {
+  config.aniversariantes.splice(i, 1);
+  renderAniversariantes();
+}
+
+// ─── NOVAS CONTRATAÇÕES ──────────────────────────────────────────────
+function renderContratacoes() {
+  if (!config.contratacoes) config.contratacoes = [];
+  const c = document.getElementById('lista-contratacoes');
+  c.innerHTML = config.contratacoes.map((p, i) => `
+    <div class="comunicado-form" style="margin-bottom:10px">
+      <div class="com-header">
+        <span class="com-num">⭐ ${p.nome || 'Novo colaborador ' + (i+1)}</span>
+        <div class="com-acoes">
+          <button class="btn-remover" onclick="removerContratacao(${i})">✕</button>
+        </div>
+      </div>
+      <div class="com-campos">
+        <div class="campo" style="margin:0">
+          <label>Nome completo</label>
+          <input type="text" value="${p.nome||''}" placeholder="Nome do novo colaborador"
+            oninput="config.contratacoes[${i}].nome=this.value;renderContratacoes()">
+        </div>
+        <div class="campo" style="margin:0">
+          <label>Setor / Cargo</label>
+          <input type="text" value="${p.setor||''}" placeholder="Ex: Analista de RH"
+            oninput="config.contratacoes[${i}].setor=this.value">
+        </div>
+      </div>
+    </div>
+  `).join('') || '<p style="color:#8099AA;font-size:14px;padding:8px 0">Nenhuma nova contratação cadastrada.</p>';
+}
+function adicionarContratacao() {
+  if (!config.contratacoes) config.contratacoes = [];
+  config.contratacoes.push({ nome:'', setor:'', ativo:true });
+  renderContratacoes();
+}
+function removerContratacao(i) {
+  config.contratacoes.splice(i, 1);
+  renderContratacoes();
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────
 function init() {
   config = carregarConfigs();
   renderComunicados();
-  document.getElementById('ticker-input').value = config.ticker || DEFAULTS.ticker;
-  document.getElementById('site-input').value   = config.site   || DEFAULTS.site;
+  renderAniversariantes();
+  renderContratacoes();
+  document.getElementById('ticker-input').value  = config.ticker  || DEFAULTS.ticker;
+  document.getElementById('site-input').value    = config.site    || DEFAULTS.site;
   document.getElementById('contato-input').value = config.contato || DEFAULTS.contato;
   atualizarPreviewTicker();
 }

@@ -409,6 +409,76 @@
     letter-spacing: 2px;
   }
 
+  /* ─── CARD FLUTUANTE (aniversariantes / novas contratações) ── */
+  #card-flutuante {
+    position: absolute;
+    bottom: calc(var(--ticker-alt) + 16px);
+    left: 20px;
+    width: 340px;
+    background: rgba(0, 20, 55, 0.93);
+    border: 2px solid var(--gw-ciano);
+    border-radius: 14px;
+    overflow: hidden;
+    display: none;
+    animation: slideUp 0.5s ease;
+  }
+  #card-flutuante-header {
+    background: linear-gradient(90deg, var(--gw-azul), #005a99);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid var(--gw-ciano);
+  }
+  #card-flutuante-icone { font-size: 22px; }
+  #card-flutuante-titulo {
+    color: white;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  #card-flutuante-body { padding: 14px 16px; }
+  .card-pessoa {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .card-pessoa:last-child { border-bottom: none; }
+  .card-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gw-azul), var(--gw-ciano));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800; color: white;
+    flex-shrink: 0;
+  }
+  .card-pessoa-info {}
+  .card-pessoa-nome { color: white; font-size: 14px; font-weight: 700; }
+  .card-pessoa-detalhe { color: var(--gw-ciano); font-size: 12px; margin-top: 2px; }
+  .card-pessoa.hoje {
+    background: rgba(255,215,0,0.1);
+    border-radius: 8px;
+    padding: 8px;
+    border: 1px solid rgba(255,215,0,0.3);
+  }
+  .card-pessoa.hoje .card-avatar {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    box-shadow: 0 0 12px rgba(251,191,36,0.5);
+  }
+  .card-pessoa.hoje .card-pessoa-nome { color: #fde68a; }
+  .badge-hoje {
+    background: #f59e0b;
+    color: #7c2d12;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 6px;
+  }
+
   /* ─── ANIMAÇÕES ────────────────────────────────── */
   @keyframes ticker {
     0%   { transform: translateX(0); }
@@ -417,6 +487,10 @@
   @keyframes slideIn {
     from { opacity: 0; transform: translateX(16px); }
     to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
   @keyframes pulse-dot {
     0%, 100% { opacity: 1; }
@@ -445,6 +519,15 @@
 <div id="ao-vivo">
   <div class="dot"></div>
   <span>AO VIVO</span>
+</div>
+
+<!-- Card flutuante: aniversariantes / novas contratações -->
+<div id="card-flutuante">
+  <div id="card-flutuante-header">
+    <div id="card-flutuante-icone">🎂</div>
+    <div id="card-flutuante-titulo">Aniversariantes do Mês</div>
+  </div>
+  <div id="card-flutuante-body"></div>
 </div>
 
 <!-- PAINEL LATERAL -->
@@ -622,12 +705,82 @@ channel.onmessage = (e) => {
   if (e.data.type === 'update') {
     localStorage.setItem('gw_tv_config', JSON.stringify(e.data.config));
     aplicarConfigs(e.data.config);
+    renderCardFlutuante();
   }
 };
+
+// ─── CARD FLUTUANTE (aniversariantes / novas contratações) ─────────
+const MODOS_CARD = [
+  { tipo: 'aniversariantes', icone: '🎂', titulo: 'Aniversariantes do Mês' },
+  { tipo: 'contratacoes',    icone: '⭐', titulo: 'Bem-vindos à General Water!' }
+];
+let modoCardAtual = 0;
+
+function renderCardFlutuante() {
+  const cfg = carregarConfigs();
+  const card = document.getElementById('card-flutuante');
+
+  const aniv = (cfg.aniversariantes || []).filter(p => p.ativo !== false);
+  const cont = (cfg.contratacoes || []).filter(p => p.ativo !== false);
+
+  if (aniv.length === 0 && cont.length === 0) {
+    card.style.display = 'none';
+    return;
+  }
+
+  // Alterna entre os dois tipos a cada 10s
+  function mostrarModo(idx) {
+    const modo = MODOS_CARD[idx];
+    const lista = modo.tipo === 'aniversariantes' ? aniv : cont;
+    if (lista.length === 0) return false;
+
+    document.getElementById('card-flutuante-icone').textContent = modo.icone;
+    document.getElementById('card-flutuante-titulo').textContent = modo.titulo;
+
+    const hoje = new Date().getDate();
+    document.getElementById('card-flutuante-body').innerHTML = lista.slice(0, 4).map(p => {
+      const iniciais = p.nome.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();
+      const eHoje = modo.tipo === 'aniversariantes' && parseInt(p.dia) === hoje;
+      const detalhe = modo.tipo === 'aniversariantes'
+        ? (p.dia ? `Dia ${p.dia} · ${p.setor}` : p.setor)
+        : `Bem-vindo(a) · ${p.setor}`;
+      return `
+        <div class="card-pessoa ${eHoje ? 'hoje' : ''}">
+          <div class="card-avatar">${eHoje ? '🎂' : iniciais}</div>
+          <div class="card-pessoa-info">
+            <div class="card-pessoa-nome">${p.nome}${eHoje ? '<span class="badge-hoje">HOJE!</span>' : ''}</div>
+            <div class="card-pessoa-detalhe">${detalhe}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    card.style.display = 'block';
+    return true;
+  }
+
+  function ciclar() {
+    const temAniv = aniv.length > 0;
+    const temCont = cont.length > 0;
+
+    // Se só tem um tipo, mostra só ele
+    if (temAniv && !temCont) { mostrarModo(0); return; }
+    if (!temAniv && temCont) { mostrarModo(1); return; }
+
+    // Alterna
+    mostrarModo(modoCardAtual);
+    modoCardAtual = (modoCardAtual + 1) % 2;
+  }
+
+  ciclar();
+  // Reexibe a cada 10 segundos alternando
+  clearInterval(window._cardInterval);
+  window._cardInterval = setInterval(ciclar, 10000);
+}
 
 // ─── INICIALIZAÇÃO ─────────────────────────────────────────────────
 (async function init() {
   aplicarConfigs(carregarConfigs());
+  renderCardFlutuante();
   await listarDispositivos();
 
   // Se já tem câmera salva, pergunta se quer reconectar automaticamente

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solicitar Comunicado — General Water TV</title>
+<style>
+  :root {
+    --azul:     #0063A6;
+    --azul-esc: #001D3D;
+    --ciano:    #00B4D8;
+    --verde:    #10B981;
+    --laranja:  #F59E0B;
+    --danger:   #EF4444;
+    --bg:       #F0F5FA;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',Arial,sans-serif; background:var(--bg); color:#1A2E42; min-height:100vh; }
+
+  /* HEADER */
+  header {
+    background: var(--azul-esc);
+    border-bottom: 3px solid var(--ciano);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  header img { height: 38px; object-fit:contain; filter:brightness(0) invert(1); }
+  .header-div { width:2px; height:32px; background:rgba(0,180,216,0.3); }
+  header h1 { color:white; font-size:16px; font-weight:600; }
+  header p { color:var(--ciano); font-size:12px; margin-top:2px; }
+
+  /* MAIN */
+  main { max-width:640px; margin:0 auto; padding:40px 24px; }
+
+  /* CARD FORM */
+  .form-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #D0DCE8;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  }
+  .form-card-header {
+    background: linear-gradient(135deg, var(--azul-esc), #003d7a);
+    padding: 28px 32px;
+    border-bottom: 3px solid var(--ciano);
+  }
+  .form-card-header h2 { color:white; font-size:20px; font-weight:800; margin-bottom:6px; }
+  .form-card-header p { color:rgba(255,255,255,0.6); font-size:13px; line-height:1.5; }
+  .form-card-body { padding:32px; }
+
+  /* CAMPOS */
+  .campo { margin-bottom:22px; }
+  .campo:last-of-type { margin-bottom:0; }
+  label {
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    color:#5A7A99;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  label .obrigatorio { color:var(--danger); margin-left:3px; }
+  input[type="text"], textarea, select {
+    width:100%;
+    border:2px solid #D0DCE8;
+    border-radius:10px;
+    padding:13px 16px;
+    font-size:15px;
+    color:#1A2E42;
+    font-family:inherit;
+    background:var(--bg);
+    transition:border-color 0.2s, background 0.2s;
+    outline:none;
+  }
+  input[type="text"]:focus,
+  textarea:focus,
+  select:focus { border-color:var(--azul); background:white; }
+  textarea { resize:vertical; min-height:110px; line-height:1.6; }
+  select { cursor:pointer; }
+
+  .linha-dupla { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+  /* PRIORIDADE */
+  .prioridade-group { display:flex; gap:12px; }
+  .pri-btn {
+    flex:1;
+    border:2px solid #D0DCE8;
+    border-radius:10px;
+    padding:12px;
+    text-align:center;
+    cursor:pointer;
+    transition:all 0.2s;
+    background:var(--bg);
+  }
+  .pri-btn input { display:none; }
+  .pri-btn .pri-icon { font-size:22px; display:block; margin-bottom:4px; }
+  .pri-btn .pri-label { font-size:13px; font-weight:700; color:#5A7A99; }
+  .pri-btn:has(input:checked) { border-color:var(--azul); background:#E8F4FF; }
+  .pri-btn:has(input:checked) .pri-label { color:var(--azul); }
+  .pri-btn.urgente:has(input:checked) { border-color:var(--danger); background:#FFF0F0; }
+  .pri-btn.urgente:has(input:checked) .pri-label { color:var(--danger); }
+
+  /* CONTADOR */
+  .contador { font-size:12px; color:#8099AA; text-align:right; margin-top:4px; }
+  .contador.limite { color:var(--danger); }
+
+  /* BOTÃO */
+  .btn-enviar {
+    width:100%;
+    background:var(--azul);
+    color:white;
+    border:none;
+    padding:16px;
+    border-radius:10px;
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:0.5px;
+    cursor:pointer;
+    transition:all 0.2s;
+    margin-top:28px;
+    box-shadow:0 4px 16px rgba(0,99,166,0.3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+  }
+  .btn-enviar:hover { background:#0077cc; transform:translateY(-1px); }
+  .btn-enviar:active { transform:translateY(0); }
+
+  /* SUCESSO */
+  #tela-sucesso {
+    display:none;
+    text-align:center;
+    padding:48px 32px;
+  }
+  .sucesso-icone { font-size:64px; margin-bottom:20px; }
+  #tela-sucesso h2 { color:var(--verde); font-size:24px; font-weight:800; margin-bottom:10px; }
+  #tela-sucesso p { color:#5A7A99; font-size:15px; line-height:1.6; max-width:380px; margin:0 auto; }
+  .sucesso-detalhe {
+    background:var(--bg);
+    border-radius:10px;
+    padding:16px 20px;
+    margin:20px auto;
+    max-width:400px;
+    text-align:left;
+    font-size:13px;
+    color:#3A5570;
+  }
+  .sucesso-detalhe strong { color:var(--azul); display:block; margin-bottom:4px; font-size:11px; letter-spacing:1px; text-transform:uppercase; }
+  .btn-nova {
+    background:white;
+    border:2px solid var(--azul);
+    color:var(--azul);
+    padding:12px 28px;
+    border-radius:10px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    margin-top:20px;
+    transition:all 0.2s;
+  }
+  .btn-nova:hover { background:var(--azul); color:white; }
+
+  /* WHATSAPP */
+  .whats-box {
+    background:#f0fff8;
+    border:2px solid #10B981;
+    border-radius:10px;
+    padding:14px 18px;
+    margin-top:16px;
+    display:none;
+    align-items:center;
+    gap:12px;
+    font-size:14px;
+    color:#065F46;
+  }
+  .whats-box a {
+    margin-left:auto;
+    background:#25D366;
+    color:white;
+    padding:8px 16px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:700;
+    text-decoration:none;
+    white-space:nowrap;
+  }
+  .whats-num { font-size:13px; color:#5A7A99; margin-top:6px; }
+  .whats-num input { border:1px solid #D0DCE8; border-radius:6px; padding:4px 10px; font-size:13px; width:160px; margin-left:8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="https://generalwater.com.br/wp-content/uploads/2023/09/Logo-General-Water.png"
+       alt="General Water" onerror="this.style.display='none'">
+  <div class="header-div"></div>
+  <div>
+    <h1>TV Corporativa</h1>
+    <p>Solicitar comunicado para exibição</p>
+  </div>
+</header>
+
+<main>
+  <div class="form-card">
+
+    <!-- FORMULÁRIO -->
+    <div id="tela-form">
+      <div class="form-card-header">
+        <h2>📢 Novo Comunicado</h2>
+        <p>Preencha os campos abaixo. Sua solicitação será enviada para aprovação antes de aparecer na TV.</p>
+      </div>
+      <div class="form-card-body">
+
+        <div class="linha-dupla">
+          <div class="campo">
+            <label>Seu nome <span class="obrigatorio">*</span></label>
+            <input type="text" id="nome" placeholder="Ex: João Silva" maxlength="50">
+          </div>
+          <div class="campo">
+            <label>Setor / Área <span class="obrigatorio">*</span></label>
+            <select id="setor">
+              <option value="">Selecione...</option>
+              <option>Administrativo</option>
+              <option>Comercial</option>
+              <option>Financeiro</option>
+              <option>Manutenção</option>
+              <option>Operacional</option>
+              <option>Produção</option>
+              <option>RH</option>
+              <option>TI</option>
+              <option>Outros</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label>Título do comunicado <span class="obrigatorio">*</span></label>
+          <input type="text" id="titulo" placeholder="Ex: Reunião geral, Aviso importante..." maxlength="60"
+            oninput="atualizarContador('titulo','cont-titulo',60)">
+          <div class="contador" id="cont-titulo">0/60</div>
+        </div>
+
+        <div class="campo">
+          <label>Texto do comunicado <span class="obrigatorio">*</span></label>
+          <textarea id="texto" placeholder="Descreva o comunicado com clareza e objetividade..." maxlength="200"
+            oninput="atualizarContador('texto','cont-texto',200)"></textarea>
+          <div class="contador" id="cont-texto">0/200</div>
+        </div>
+
+        <div class="linha-dupla">
+          <div class="campo">
+            <label>Prioridade</label>
+            <div class="prioridade-group">
+              <label class="pri-btn">
+                <input type="radio" name="prioridade" value="normal" checked>
+                <span class="pri-icon">📋</span>
+                <span class="pri-label">Normal</span>
+              </label>
+              <label class="pri-btn urgente">
+                <input type="radio" name="prioridade" value="urgente">
+                <span class="pri-icon">🚨</span>
+                <span class="pri-label">Urgente</span>
+              </label>
+            </div>
+          </div>
+          <div class="campo">
+            <label>Exibir por quanto tempo</label>
+            <select id="validade">
+              <option value="hoje">Somente hoje</option>
+              <option value="semana" selected>Esta semana</option>
+              <option value="15dias">15 dias</option>
+              <option value="mes">1 mês</option>
+              <option value="permanente">Permanente</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label>Observação para o aprovador <small style="text-transform:none;letter-spacing:0;color:#8099AA">(opcional)</small></label>
+          <input type="text" id="obs" placeholder="Ex: Favor aprovar antes das 10h, é para reunião de hoje">
+        </div>
+
+        <!-- NOTIFICAÇÃO WHATSAPP -->
+        <div style="margin-top:8px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;font-weight:600;color:#3A5570">
+            <input type="checkbox" id="check-whats" onchange="toggleWhats()">
+            Notificar aprovador pelo WhatsApp após enviar
+          </label>
+          <div class="whats-box" id="whats-box">
+            <span>📱</span>
+            <div>
+              Número do responsável:
+              <input type="text" id="whats-num" placeholder="5511999999999" style="display:inline-block">
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-enviar" onclick="enviarSolicitacao()">
+          <span>Enviar Solicitação</span>
+          <span>→</span>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- TELA DE SUCESSO -->
+    <div id="tela-sucesso">
+      <div class="sucesso-icone">✅</div>
+      <h2>Solicitação enviada!</h2>
+      <p>Sua solicitação foi registrada e aguarda aprovação do responsável.</p>
+      <div class="sucesso-detalhe" id="sucesso-resumo"></div>
+      <div id="whats-link-box" style="margin-top:12px; display:none">
+        <a id="whats-link" href="#" target="_blank"
+           style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:white;padding:12px 24px;border-radius:10px;font-weight:700;text-decoration:none;font-size:15px">
+          📱 Notificar aprovador pelo WhatsApp
+        </a>
+      </div>
+      <br>
+      <button class="btn-nova" onclick="novaSolicitacao()">+ Nova solicitação</button>
+    </div>
+
+  </div>
+</main>
+
+<script>
+function atualizarContador(inputId, contId, max) {
+  const v = document.getElementById(inputId).value.length;
+  const el = document.getElementById(contId);
+  el.textContent = v + '/' + max;
+  el.classList.toggle('limite', v >= max * 0.9);
+}
+
+function toggleWhats() {
+  const box = document.getElementById('whats-box');
+  box.style.display = document.getElementById('check-whats').checked ? 'flex' : 'none';
+}
+
+function enviarSolicitacao() {
+  const nome    = document.getElementById('nome').value.trim();
+  const setor   = document.getElementById('setor').value;
+  const titulo  = document.getElementById('titulo').value.trim();
+  const texto   = document.getElementById('texto').value.trim();
+  const validade = document.getElementById('validade').value;
+  const obs     = document.getElementById('obs').value.trim();
+  const prioridade = document.querySelector('input[name="prioridade"]:checked').value;
+
+  if (!nome)   { alert('Preencha seu nome.'); return; }
+  if (!setor)  { alert('Selecione seu setor.'); return; }
+  if (!titulo) { alert('Preencha o título do comunicado.'); return; }
+  if (!texto)  { alert('Preencha o texto do comunicado.'); return; }
+
+  const solicitacao = {
+    id: Date.now(),
+    nome, setor, titulo, texto, validade, prioridade, obs,
+    status: 'pendente',
+    dataEnvio: new Date().toISOString(),
+    dataAprovacao: null,
+    hora: new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })
+  };
+
+  const lista = JSON.parse(localStorage.getItem('gw_tv_solicitacoes') || '[]');
+  lista.push(solicitacao);
+  localStorage.setItem('gw_tv_solicitacoes', JSON.stringify(lista));
+
+  // BroadcastChannel para notificar aprovacao.html aberto
+  try {
+    const ch = new BroadcastChannel('gw_tv_solicitacoes');
+    ch.postMessage({ type: 'nova', solicitacao });
+  } catch(e) {}
+
+  mostrarSucesso(solicitacao);
+}
+
+function mostrarSucesso(s) {
+  document.getElementById('tela-form').style.display = 'none';
+  const ts = document.getElementById('tela-sucesso');
+  ts.style.display = 'block';
+
+  const valMap = { hoje:'Somente hoje', semana:'Esta semana', '15dias':'15 dias', mes:'1 mês', permanente:'Permanente' };
+
+  document.getElementById('sucesso-resumo').innerHTML = `
+    <strong>Solicitante</strong>${s.nome} — ${s.setor}
+    <strong style="margin-top:10px">Título</strong>${s.titulo}
+    <strong style="margin-top:10px">Prioridade</strong>${s.prioridade === 'urgente' ? '🚨 Urgente' : '📋 Normal'}
+    <strong style="margin-top:10px">Exibição</strong>${valMap[s.validade]}
+    ${s.obs ? `<strong style="margin-top:10px">Observação</strong>${s.obs}` : ''}
+  `;
+
+  // WhatsApp
+  const checkWhats = document.getElementById('check-whats').checked;
+  const numWhats = document.getElementById('whats-num').value.replace(/\D/g, '');
+  if (checkWhats && numWhats) {
+    const msg = encodeURIComponent(
+      `📺 *Nova solicitação de comunicado para a TV*\n\n` +
+      `👤 *Solicitante:* ${s.nome} (${s.setor})\n` +
+      `📌 *Título:* ${s.titulo}\n` +
+      `📝 *Texto:* ${s.texto}\n` +
+      `⚡ *Prioridade:* ${s.prioridade === 'urgente' ? 'URGENTE 🚨' : 'Normal'}\n` +
+      `📅 *Exibição:* ${s.validade}\n` +
+      (s.obs ? `💬 *Obs:* ${s.obs}\n` : '') +
+      `\nAcesse o painel de aprovação para revisar.`
+    );
+    document.getElementById('whats-link').href = `https://wa.me/${numWhats}?text=${msg}`;
+    document.getElementById('whats-link-box').style.display = 'block';
+  }
+}
+
+function novaSolicitacao() {
+  document.getElementById('tela-form').style.display = 'block';
+  document.getElementById('tela-sucesso').style.display = 'none';
+  document.getElementById('whats-link-box').style.display = 'none';
+  document.getElementById('nome').value = '';
+  document.getElementById('titulo').value = '';
+  document.getElementById('texto').value = '';
+  document.getElementById('obs').value = '';
+  document.getElementById('cont-titulo').textContent = '0/60';
+  document.getElementById('cont-texto').textContent = '0/200';
+}
+</script>
+</body>
+</html>

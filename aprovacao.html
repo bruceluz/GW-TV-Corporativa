@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aprovação de Comunicados — General Water TV</title>
+<style>
+  :root {
+    --azul:     #0063A6;
+    --azul-esc: #001D3D;
+    --ciano:    #00B4D8;
+    --verde:    #10B981;
+    --laranja:  #F59E0B;
+    --danger:   #EF4444;
+    --bg:       #F0F5FA;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',Arial,sans-serif; background:var(--bg); color:#1A2E42; min-height:100vh; }
+
+  /* PIN */
+  #tela-pin {
+    position:fixed; inset:0;
+    background:var(--azul-esc);
+    display:flex; align-items:center; justify-content:center;
+    z-index:999;
+  }
+  .pin-box {
+    background:linear-gradient(180deg,#001428,#002255);
+    border:2px solid var(--ciano);
+    border-radius:20px;
+    padding:48px;
+    width:380px;
+    text-align:center;
+    box-shadow:0 0 60px rgba(0,180,216,0.3);
+  }
+  .pin-box img { height:50px; filter:brightness(0) invert(1); margin-bottom:20px; }
+  .pin-box h2 { color:white; font-size:18px; font-weight:700; margin-bottom:6px; }
+  .pin-box p { color:rgba(255,255,255,0.5); font-size:13px; margin-bottom:28px; }
+  .pin-input {
+    width:100%;
+    background:rgba(255,255,255,0.08);
+    border:2px solid rgba(0,180,216,0.4);
+    border-radius:10px;
+    padding:16px;
+    font-size:28px;
+    color:white;
+    text-align:center;
+    letter-spacing:12px;
+    margin-bottom:16px;
+    outline:none;
+  }
+  .pin-input:focus { border-color:var(--ciano); }
+  .btn-pin {
+    width:100%;
+    background:var(--azul);
+    color:white;
+    border:none;
+    padding:14px;
+    border-radius:10px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .pin-erro { color:var(--danger); font-size:13px; margin-top:10px; display:none; }
+
+  /* HEADER */
+  header {
+    background:var(--azul-esc);
+    border-bottom:3px solid var(--ciano);
+    padding:0 32px;
+    height:64px;
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:100;
+  }
+  .header-esq { display:flex; align-items:center; gap:16px; }
+  header img { height:38px; object-fit:contain; filter:brightness(0) invert(1); }
+  .header-div { width:2px; height:32px; background:rgba(0,180,216,0.3); }
+  .header-txt h1 { color:white; font-size:16px; font-weight:700; }
+  .header-txt p  { color:var(--ciano); font-size:12px; margin-top:2px; }
+  .header-acoes { display:flex; gap:12px; align-items:center; }
+  .badge-pendente {
+    background:rgba(239,68,68,0.2);
+    border:1px solid rgba(239,68,68,0.5);
+    color:#FCA5A5;
+    font-size:12px;
+    font-weight:700;
+    padding:5px 14px;
+    border-radius:20px;
+  }
+  .btn-hdr {
+    background:var(--ciano);
+    color:var(--azul-esc);
+    border:none;
+    padding:9px 18px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  /* TABS */
+  .tabs {
+    background:white;
+    border-bottom:2px solid #E0EAF3;
+    display:flex;
+    padding:0 32px;
+  }
+  .tab {
+    padding:16px 24px;
+    font-size:14px;
+    font-weight:700;
+    color:#5A7A99;
+    cursor:pointer;
+    border-bottom:3px solid transparent;
+    margin-bottom:-2px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:all 0.2s;
+  }
+  .tab:hover { color:var(--azul); }
+  .tab.ativa { color:var(--azul); border-bottom-color:var(--azul); }
+  .tab .num {
+    background:var(--danger);
+    color:white;
+    font-size:11px;
+    font-weight:800;
+    padding:2px 7px;
+    border-radius:10px;
+  }
+  .tab.ativa .num { background:var(--azul); }
+  .tab .num.verde { background:var(--verde); }
+
+  /* CONTEÚDO */
+  main { max-width:900px; margin:0 auto; padding:32px 24px; }
+  .secao { display:none; }
+  .secao.ativa { display:block; }
+
+  /* CARD SOLICITAÇÃO */
+  .sol-card {
+    background:white;
+    border-radius:12px;
+    border:1px solid #D0DCE8;
+    margin-bottom:14px;
+    overflow:hidden;
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+    transition:box-shadow 0.2s;
+  }
+  .sol-card:hover { box-shadow:0 4px 20px rgba(0,0,0,0.1); }
+  .sol-card.urgente { border-left:4px solid var(--danger); }
+  .sol-card.aprovado { border-left:4px solid var(--verde); opacity:0.75; }
+  .sol-card.rejeitado { border-left:4px solid #aaa; opacity:0.6; }
+
+  .sol-header {
+    padding:16px 20px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    border-bottom:1px solid #F0F5FA;
+  }
+  .sol-avatar {
+    width:42px; height:42px;
+    border-radius:50%;
+    background:linear-gradient(135deg, var(--azul), var(--ciano));
+    display:flex; align-items:center; justify-content:center;
+    color:white; font-size:16px; font-weight:800;
+    flex-shrink:0;
+  }
+  .sol-meta { flex:1; }
+  .sol-nome { font-size:15px; font-weight:700; color:#1A2E42; }
+  .sol-info { font-size:12px; color:#8099AA; margin-top:2px; }
+  .sol-tags { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .tag {
+    font-size:11px; font-weight:700; padding:3px 10px;
+    border-radius:20px; white-space:nowrap;
+  }
+  .tag.urgente { background:#FEE2E2; color:#991B1B; }
+  .tag.normal  { background:#E0F2FE; color:#0369A1; }
+  .tag.pendente { background:#FEF3C7; color:#92400E; }
+  .tag.aprovado { background:#D1FAE5; color:#065F46; }
+  .tag.rejeitado { background:#F3F4F6; color:#6B7280; }
+
+  .sol-body { padding:16px 20px; }
+  .sol-body label {
+    font-size:11px; font-weight:700; color:#8099AA;
+    letter-spacing:1px; text-transform:uppercase;
+    display:block; margin-bottom:6px;
+  }
+  .sol-body input[type="text"],
+  .sol-body textarea {
+    width:100%;
+    border:2px solid #E0EAF3;
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:14px;
+    color:#1A2E42;
+    font-family:inherit;
+    background:#F8FAFC;
+    outline:none;
+    transition:border-color 0.2s;
+    margin-bottom:14px;
+  }
+  .sol-body input[type="text"]:focus,
+  .sol-body textarea:focus { border-color:var(--azul); background:white; }
+  .sol-body textarea { min-height:80px; resize:vertical; }
+
+  .sol-linha { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+  .sol-linha label { margin-bottom:6px; }
+  .sol-linha select {
+    width:100%; border:2px solid #E0EAF3; border-radius:8px;
+    padding:10px 14px; font-size:14px; font-family:inherit;
+    background:#F8FAFC; outline:none; cursor:pointer;
+  }
+  .sol-linha select:focus { border-color:var(--azul); }
+
+  .sol-obs {
+    background:#FFFBEB;
+    border:1px solid #FDE68A;
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13px;
+    color:#92400E;
+    margin-bottom:14px;
+  }
+  .sol-obs strong { font-size:11px; letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:3px; }
+
+  .sol-acoes { display:flex; gap:10px; padding:14px 20px; background:#FAFBFC; border-top:1px solid #F0F5FA; }
+  .btn-aprovar {
+    flex:1; background:var(--verde); color:white; border:none;
+    padding:12px; border-radius:8px; font-size:14px; font-weight:700;
+    cursor:pointer; transition:all 0.2s;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .btn-aprovar:hover { background:#0ca678; }
+  .btn-rejeitar {
+    background:white; color:var(--danger); border:2px solid var(--danger);
+    padding:12px 20px; border-radius:8px; font-size:14px; font-weight:700;
+    cursor:pointer; transition:all 0.2s;
+  }
+  .btn-rejeitar:hover { background:#FFF0F0; }
+  .btn-editar {
+    background:white; color:var(--azul); border:2px solid var(--azul);
+    padding:12px 20px; border-radius:8px; font-size:14px; font-weight:700;
+    cursor:pointer; transition:all 0.2s;
+  }
+  .btn-editar:hover { background:#E8F4FF; }
+
+  /* VAZIO */
+  .vazio {
+    text-align:center; padding:60px 20px; color:#8099AA;
+  }
+  .vazio .ic { font-size:52px; margin-bottom:14px; }
+  .vazio p { font-size:15px; }
+
+  /* TOAST */
+  #toast {
+    position:fixed; bottom:28px; right:28px;
+    background:#1A2E42; color:white;
+    padding:14px 22px; border-radius:10px;
+    font-size:14px; font-weight:600;
+    box-shadow:0 8px 24px rgba(0,0,0,0.2);
+    transform:translateY(100px); opacity:0;
+    transition:all 0.3s; z-index:999;
+  }
+  #toast.show { transform:translateY(0); opacity:1; }
+  #toast.verde { background:var(--verde); }
+  #toast.danger { background:var(--danger); }
+</style>
+</head>
+<body>
+
+<!-- PIN -->
+<div id="tela-pin">
+  <div class="pin-box">
+    <img src="https://generalwater.com.br/wp-content/uploads/2023/09/Logo-General-Water.png"
+         alt="GW" onerror="this.style.display='none'">
+    <h2>Painel de Aprovação</h2>
+    <p>Digite o PIN para acessar</p>
+    <input type="password" class="pin-input" id="pin-input" maxlength="4" placeholder="••••"
+      onkeyup="if(event.key==='Enter') verificarPin()">
+    <button class="btn-pin" onclick="verificarPin()">Entrar</button>
+    <div class="pin-erro" id="pin-erro">PIN incorreto. Tente novamente.</div>
+    <p style="color:rgba(255,255,255,0.25);font-size:11px;margin-top:16px">PIN padrão: 1234</p>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-esq">
+    <img src="https://generalwater.com.br/wp-content/uploads/2023/09/Logo-General-Water.png"
+         alt="GW" onerror="this.style.display='none'">
+    <div class="header-div"></div>
+    <div class="header-txt">
+      <h1>Painel de Aprovação</h1>
+      <p>TV Corporativa General Water</p>
+    </div>
+  </div>
+  <div class="header-acoes">
+    <span class="badge-pendente" id="badge-pendente">0 pendentes</span>
+    <a href="admin.html" class="btn-hdr" target="_blank">⚙ Admin</a>
+    <a href="solicitar.html" class="btn-hdr" target="_blank">+ Nova solicitação</a>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab ativa" onclick="mudarTab('pendentes')" id="tab-pendentes">
+    Pendentes <span class="num" id="num-pendentes">0</span>
+  </div>
+  <div class="tab" onclick="mudarTab('aprovados')" id="tab-aprovados">
+    Aprovados <span class="num verde" id="num-aprovados">0</span>
+  </div>
+  <div class="tab" onclick="mudarTab('rejeitados')" id="tab-rejeitados">
+    Rejeitados <span class="num" id="num-rejeitados">0</span>
+  </div>
+</div>
+
+<main>
+  <div class="secao ativa" id="sec-pendentes">
+    <div id="lista-pendentes"></div>
+  </div>
+  <div class="secao" id="sec-aprovados">
+    <div id="lista-aprovados"></div>
+  </div>
+  <div class="secao" id="sec-rejeitados">
+    <div id="lista-rejeitados"></div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+const PIN_CORRETO = '1234'; // ← ALTERE O PIN AQUI
+const channel = new BroadcastChannel('gw_tv');
+const chSol   = new BroadcastChannel('gw_tv_solicitacoes');
+
+// ─── PIN ────────────────────────────────────────────────
+function verificarPin() {
+  const v = document.getElementById('pin-input').value;
+  if (v === PIN_CORRETO) {
+    document.getElementById('tela-pin').style.display = 'none';
+    renderTudo();
+  } else {
+    document.getElementById('pin-erro').style.display = 'block';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+  }
+}
+
+// ─── DADOS ──────────────────────────────────────────────
+function carregar() {
+  return JSON.parse(localStorage.getItem('gw_tv_solicitacoes') || '[]');
+}
+function salvar(lista) {
+  localStorage.setItem('gw_tv_solicitacoes', JSON.stringify(lista));
+}
+
+// ─── RENDER ─────────────────────────────────────────────
+const valMap = { hoje:'Somente hoje', semana:'Esta semana', '15dias':'15 dias', mes:'1 mês', permanente:'Permanente' };
+
+function renderCard(s, editavel) {
+  const iniciais = s.nome.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();
+  const dataEnvio = new Date(s.dataEnvio).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+
+  return `
+  <div class="sol-card ${s.prioridade} ${s.status}" id="card-${s.id}">
+    <div class="sol-header">
+      <div class="sol-avatar">${iniciais}</div>
+      <div class="sol-meta">
+        <div class="sol-nome">${s.nome}</div>
+        <div class="sol-info">${s.setor} &nbsp;·&nbsp; ${dataEnvio}</div>
+      </div>
+      <div class="sol-tags">
+        <span class="tag ${s.prioridade}">${s.prioridade === 'urgente' ? '🚨 Urgente' : '📋 Normal'}</span>
+        <span class="tag ${s.status}">${s.status}</span>
+      </div>
+    </div>
+
+    <div class="sol-body">
+      <label>Título</label>
+      <input type="text" id="titulo-${s.id}" value="${s.titulo}" ${editavel?'':'readonly'}>
+
+      <label>Texto do comunicado</label>
+      <textarea id="texto-${s.id}" ${editavel?'':'readonly'}>${s.texto}</textarea>
+
+      <div class="sol-linha">
+        <div>
+          <label>Quando / Horário</label>
+          <input type="text" id="hora-${s.id}" value="${s.hora || 'Agora'}" ${editavel?'':'readonly'}>
+        </div>
+        <div>
+          <label>Exibição</label>
+          <select id="val-${s.id}" ${editavel?'':'disabled'}>
+            ${Object.entries(valMap).map(([k,v])=>`<option value="${k}" ${s.validade===k?'selected':''}>${v}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+
+      ${s.obs ? `<div class="sol-obs"><strong>Observação do solicitante</strong>${s.obs}</div>` : ''}
+    </div>
+
+    ${editavel ? `
+    <div class="sol-acoes">
+      <button class="btn-aprovar" onclick="aprovar(${s.id})">✓ Aprovar e enviar para TV</button>
+      <button class="btn-rejeitar" onclick="rejeitar(${s.id})">✕ Rejeitar</button>
+    </div>` : `
+    <div class="sol-acoes" style="justify-content:flex-end">
+      ${s.status === 'aprovado' ? `<button class="btn-rejeitar" onclick="rejeitar(${s.id})">Remover da TV</button>` : ''}
+    </div>`}
+  </div>`;
+}
+
+function renderTudo() {
+  const lista = carregar();
+  const pendentes  = lista.filter(s=>s.status==='pendente');
+  const aprovados  = lista.filter(s=>s.status==='aprovado');
+  const rejeitados = lista.filter(s=>s.status==='rejeitado');
+
+  document.getElementById('num-pendentes').textContent  = pendentes.length;
+  document.getElementById('num-aprovados').textContent  = aprovados.length;
+  document.getElementById('num-rejeitados').textContent = rejeitados.length;
+  document.getElementById('badge-pendente').textContent = pendentes.length + ' pendente' + (pendentes.length!==1?'s':'');
+
+  document.getElementById('lista-pendentes').innerHTML = pendentes.length
+    ? pendentes.map(s=>renderCard(s,true)).join('')
+    : `<div class="vazio"><div class="ic">✅</div><p>Nenhuma solicitação pendente</p></div>`;
+
+  document.getElementById('lista-aprovados').innerHTML = aprovados.length
+    ? aprovados.map(s=>renderCard(s,false)).join('')
+    : `<div class="vazio"><div class="ic">📋</div><p>Nenhum comunicado aprovado ainda</p></div>`;
+
+  document.getElementById('lista-rejeitados').innerHTML = rejeitados.length
+    ? rejeitados.map(s=>renderCard(s,false)).join('')
+    : `<div class="vazio"><div class="ic">🗑</div><p>Nenhuma solicitação rejeitada</p></div>`;
+}
+
+// ─── APROVAR ─────────────────────────────────────────────
+function aprovar(id) {
+  const lista = carregar();
+  const idx = lista.findIndex(s=>s.id===id);
+  if (idx === -1) return;
+
+  // Pegar valores editados
+  lista[idx].titulo    = document.getElementById('titulo-'+id).value;
+  lista[idx].texto     = document.getElementById('texto-'+id).value;
+  lista[idx].hora      = document.getElementById('hora-'+id).value;
+  lista[idx].validade  = document.getElementById('val-'+id).value;
+  lista[idx].status    = 'aprovado';
+  lista[idx].dataAprovacao = new Date().toISOString();
+  salvar(lista);
+
+  // Adicionar ao painel de comunicados da TV
+  const cfg = JSON.parse(localStorage.getItem('gw_tv_config') || '{}');
+  if (!cfg.comunicados) cfg.comunicados = [];
+  cfg.comunicados = cfg.comunicados.filter(c => c.id !== id);
+  cfg.comunicados.push({
+    id: lista[idx].id,
+    titulo: lista[idx].titulo,
+    texto:  lista[idx].texto,
+    hora:   lista[idx].hora,
+    ativo:  true,
+    origem: 'solicitacao'
+  });
+  localStorage.setItem('gw_tv_config', JSON.stringify(cfg));
+  channel.postMessage({ type:'update', config:cfg });
+
+  toast('✓ Aprovado e enviado para a TV!', 'verde');
+  renderTudo();
+  mudarTab('aprovados');
+}
+
+// ─── REJEITAR ────────────────────────────────────────────
+function rejeitar(id) {
+  if (!confirm('Confirma rejeitar / remover esta solicitação?')) return;
+  const lista = carregar();
+  const idx = lista.findIndex(s=>s.id===id);
+  if (idx === -1) return;
+
+  if (lista[idx].status === 'aprovado') {
+    // Remover da TV
+    const cfg = JSON.parse(localStorage.getItem('gw_tv_config') || '{}');
+    if (cfg.comunicados) {
+      cfg.comunicados = cfg.comunicados.filter(c=>c.id!==id);
+      localStorage.setItem('gw_tv_config', JSON.stringify(cfg));
+      channel.postMessage({ type:'update', config:cfg });
+    }
+  }
+
+  lista[idx].status = 'rejeitado';
+  salvar(lista);
+  toast('Solicitação rejeitada.', 'danger');
+  renderTudo();
+}
+
+// ─── TABS ────────────────────────────────────────────────
+function mudarTab(nome) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('ativa'));
+  document.querySelectorAll('.secao').forEach(s=>s.classList.remove('ativa'));
+  document.getElementById('tab-'+nome).classList.add('ativa');
+  document.getElementById('sec-'+nome).classList.add('ativa');
+}
+
+// ─── TOAST ───────────────────────────────────────────────
+function toast(msg, tipo='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + tipo;
+  setTimeout(()=>t.className='', 3000);
+}
+
+// ─── BROADCAST (novas solicitações em tempo real) ────────
+chSol.onmessage = (e) => {
+  if (e.data.type === 'nova') {
+    renderTudo();
+    toast('📢 Nova solicitação de ' + e.data.solicitacao.nome + '!');
+  }
+};
+
+// ─── INIT ────────────────────────────────────────────────
+document.getElementById('pin-input').focus();
+</script>
+</body>
+</html>
