@@ -71,35 +71,51 @@
 
   /* Logo */
   #logo-area {
-    padding: 28px 24px 20px;
+    padding: 30px 24px 22px;
     text-align: center;
-    background: rgba(0,0,0,0.3);
-    border-bottom: 1px solid rgba(0,180,216,0.25);
+    background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,20,60,0.3) 100%);
+    border-bottom: 1px solid rgba(0,180,216,0.3);
     flex-shrink: 0;
+    position: relative;
+  }
+  #logo-area::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 20%; right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gw-ciano), transparent);
   }
   #logo-area img {
-    max-width: 220px;
-    max-height: 80px;
+    max-width: 260px;
+    max-height: 90px;
     object-fit: contain;
     filter: brightness(0) invert(1);
+    drop-shadow: 0 0 20px rgba(0,180,216,0.5);
   }
   #logo-area img.erro {
     display: none;
   }
   #nome-empresa-fallback {
     color: var(--gw-branco);
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: 2px;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 3px;
     display: none;
+    text-shadow: 0 0 30px rgba(0,180,216,0.6);
   }
   #slogan {
     color: var(--gw-ciano);
-    font-size: 11px;
-    margin-top: 8px;
-    line-height: 1.5;
-    opacity: 0.85;
+    font-size: 11.5px;
+    margin-top: 10px;
+    line-height: 1.6;
+    opacity: 0.9;
     font-style: italic;
+    letter-spacing: 0.3px;
+    padding: 0 8px;
+  }
+  #slogan::before, #slogan::after {
+    content: '"';
+    opacity: 0.5;
   }
 
   /* Relógio */
@@ -259,20 +275,37 @@
     z-index: 999;
   }
   #setup-box {
-    background: #001D3D;
+    background: linear-gradient(180deg, #001428 0%, #002255 100%);
     border: 2px solid var(--gw-ciano);
-    border-radius: 16px;
-    padding: 48px;
-    width: 520px;
+    border-radius: 20px;
+    padding: 52px 48px;
+    width: 560px;
     text-align: center;
-    box-shadow: 0 0 60px rgba(0,180,216,0.3);
+    box-shadow: 0 0 80px rgba(0,180,216,0.35), 0 0 160px rgba(0,99,166,0.2);
+  }
+  #setup-logo-wrap {
+    margin-bottom: 6px;
   }
   #setup-box img {
-    max-width: 200px;
-    max-height: 70px;
+    max-width: 240px;
+    max-height: 80px;
     object-fit: contain;
     filter: brightness(0) invert(1);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+  }
+  #setup-slogan {
+    color: var(--gw-ciano);
+    font-size: 12px;
+    font-style: italic;
+    opacity: 0.8;
+    margin-bottom: 24px;
+    letter-spacing: 0.3px;
+  }
+  #setup-divisor {
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gw-ciano), transparent);
+    margin: 0 auto 24px;
   }
   #setup-box h2 {
     color: var(--gw-branco);
@@ -455,10 +488,14 @@
 <!-- MODAL DE CONFIGURAÇÃO INICIAL -->
 <div id="setup-modal">
   <div id="setup-box">
-    <img src="https://generalwater.com.br/wp-content/uploads/2023/09/Logo-General-Water.png"
-         alt="General Water"
-         onerror="this.style.display='none'">
-    <h2>General Water TV Corporativa</h2>
+    <div id="setup-logo-wrap">
+      <img src="https://generalwater.com.br/wp-content/uploads/2023/09/Logo-General-Water.png"
+           alt="General Water"
+           onerror="this.style.display='none'">
+    </div>
+    <div id="setup-slogan">Cuidando da sua água com excelência em cada gota</div>
+    <div id="setup-divisor"></div>
+    <h2>TV Corporativa</h2>
     <p class="sub">Selecione a fonte de vídeo para iniciar</p>
     <label>CÂMERA / PLACA DE CAPTURA HDMI</label>
     <select id="camera-select">

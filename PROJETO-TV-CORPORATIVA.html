@@ -348,7 +348,12 @@
       <div class="sec-n az">1</div>
       <div><h2>Material Necessário para o Teste</h2></div>
     </div>
-    <div class="info" style="margin-bottom:16px"><strong>Escopo:</strong> Instalação para <strong>1 TV</strong> na empresa. O PC do teste será fornecido pelo TI (Junior) — sem custo adicional de hardware nesta fase.</div>
+    <div class="info" style="margin-bottom:16px"><strong>Escopo:</strong> Instalação para <strong>1 TV</strong> na empresa com decodificador <strong>Claro/NET</strong>. O PC do teste será fornecido pelo TI (Junior) — sem custo adicional de hardware nesta fase.</div>
+
+    <div class="aviso" style="margin-bottom:16px">
+      <strong>Atenção — Claro/NET usa proteção HDCP:</strong> Decodificadores Claro/NET costumam proteger o sinal HDMI contra captura (HDCP). Se não usar o splitter abaixo, a placa de captura pode mostrar <strong>tela preta</strong>. O splitter resolve isso e ainda mantém a TV funcionando normalmente ao mesmo tempo.
+    </div>
+
     <table>
       <tr><th colspan="4">🔌 PLACA DE CAPTURA HDMI — escolha uma opção</th></tr>
       <tr><th>Modelo</th><th>Características</th><th>Custo</th><th>Indicação</th></tr>
@@ -370,10 +375,26 @@
         <td><span class="tp">R$ 380–520</span></td>
         <td><span class="tg">Recomendado para definitivo</span></td>
       </tr>
+
+      <tr><th colspan="4" style="background:#7c3a00">⚡ SPLITTER HDMI — obrigatório para Claro/NET (remove proteção HDCP)</th></tr>
+      <tr><th>Modelo</th><th>Características</th><th>Custo</th><th>Indicação</th></tr>
+      <tr>
+        <td><strong>Splitter HDMI 1x2 genérico</strong><br><small style="color:#6B8299">Busque: "splitter HDMI 1x2 1080p" no Mercado Livre</small></td>
+        <td>Divide 1 entrada em 2 saídas · remove HDCP · 1080p</td>
+        <td><span class="tp">R$ 30–50</span></td>
+        <td><span class="tb">Suficiente para o teste</span></td>
+      </tr>
+      <tr>
+        <td><strong>Splitter HDMI 1x2 com alimentação USB</strong><br><small style="color:#6B8299">Busque: "splitter HDMI 1x2 com fonte"</small></td>
+        <td>Mais estável · sinal amplificado · ideal para distâncias maiores</td>
+        <td><span class="tp">R$ 50–80</span></td>
+        <td><span class="tg">Recomendado para definitivo</span></td>
+      </tr>
+
       <tr><th colspan="4" style="background:#065F46">💻 PC PARA O TESTE — solicitar ao TI (Junior)</th></tr>
       <tr><th>Opção</th><th>Requisito mínimo</th><th>Custo</th><th>Observação</th></tr>
       <tr>
-        <td><strong>PC Desktop velho</strong><br><small style="color:#6B8299">Qualquer tower/desktop parado no estoque</small></td>
+        <td><strong>PC Desktop velho</strong><br><small style="color:#6B8299">Qualquer tower/desktop parado no estoque de TI</small></td>
         <td>Windows 10/11 · 4GB RAM · USB · saída HDMI ou VGA+adaptador</td>
         <td><span class="tg">R$ 0 (já tem)</span></td>
         <td>Pedir ao Junior — usar só para o teste</td>
@@ -384,22 +405,34 @@
         <td><span class="tg">R$ 0 (já tem)</span></td>
         <td>Mais fácil de mover para o local da TV</td>
       </tr>
-      <tr><th colspan="4" style="background:#1e3a5f">🔶 CABOS — comprar junto com a placa</th></tr>
+
+      <tr><th colspan="4" style="background:#1e3a5f">🔶 CABOS HDMI — 3 cabos necessários com splitter</th></tr>
       <tr><th>Item</th><th>Especificação</th><th>Custo</th><th>Onde</th></tr>
       <tr>
-        <td><strong>Cabo HDMI — decodificador → placa captura</strong></td>
-        <td>HDMI 1.4 · 1m a 2m · qualquer marca</td>
+        <td><strong>Cabo 1 — Decodificador → Splitter</strong></td>
+        <td>HDMI 1.4 · 1m a 2m · qualquer marca (Vinik, Fortrek)</td>
         <td><span class="tp">R$ 15–25</span></td>
         <td>Mercado Livre / loja local</td>
       </tr>
       <tr>
-        <td><strong>Cabo HDMI — PC → TV</strong></td>
+        <td><strong>Cabo 2 — Splitter → Placa Captura</strong></td>
+        <td>HDMI 1.4 · 0,5m a 1m</td>
+        <td><span class="tp">R$ 15–20</span></td>
+        <td>Mercado Livre / loja local</td>
+      </tr>
+      <tr>
+        <td><strong>Cabo 3 — PC → TV</strong></td>
         <td>HDMI 1.4 · comprimento conforme distância</td>
         <td><span class="tp">R$ 15–40</span></td>
         <td>Mercado Livre / loja local</td>
       </tr>
-      <tr><th colspan="2">TOTAL FASE 1 (hardware novo)</th><td colspan="2"><span class="tp" style="font-size:14px; padding:5px 14px"><strong>R$ 90 – R$ 155</strong></span></td></tr>
+      <tr><th colspan="2">TOTAL FASE 1 (hardware novo)</th><td colspan="2"><span class="tp" style="font-size:14px; padding:5px 14px"><strong>R$ 120 – R$ 235</strong></span></td></tr>
     </table>
+
+    <div class="dica"><strong>Esquema de conexão com splitter (Claro/NET):</strong><br><br>
+    Decodificador Claro/NET → <strong>Cabo HDMI 1</strong> → <strong>Splitter HDMI 1x2</strong> → saída 1: <strong>TV</strong> (canal normal) / saída 2: <strong>Cabo HDMI 2</strong> → <strong>Placa Captura</strong> → USB → <strong>PC</strong> → <strong>Cabo HDMI 3</strong> → <strong>TV</strong> (com painel General Water por cima)<br><br>
+    O splitter mantém o canal passando normalmente na TV E permite que o computador capture o sinal ao mesmo tempo.
+    </div>
   </div>
 
   <div>
@@ -540,16 +573,30 @@
         <td><span class="tp">R$ 700–900</span></td>
         <td><span class="tb">Overkill para 1 TV — mas o melhor</span></td>
       </tr>
-      <tr><th colspan="4" class="gh">🔶 CABOS HDMI — 2 cabos necessários</th></tr>
+      <tr><th colspan="4" class="gh" style="background:#7c3a00">⚡ SPLITTER HDMI — obrigatório para Claro/NET</th></tr>
+      <tr><th class="gh">Modelo</th><th class="gh">Características</th><th class="gh">Custo</th><th class="gh">Indicação</th></tr>
+      <tr>
+        <td><strong>Splitter HDMI 1x2 com alimentação USB</strong><br><small style="color:#6B8299">Busque: "splitter HDMI 1x2 com fonte"</small></td>
+        <td>Sinal amplificado · remove HDCP · 2 saídas · estável 24h</td>
+        <td><span class="tp">R$ 50–80</span></td>
+        <td><span class="tg">Recomendado para instalação definitiva</span></td>
+      </tr>
+      <tr><th colspan="4" class="gh">🔶 CABOS HDMI — 3 cabos necessários com splitter</th></tr>
       <tr><th class="gh">Cabo</th><th class="gh">Especificação</th><th class="gh">Custo</th><th class="gh">Onde</th></tr>
       <tr>
-        <td><strong>Cabo 1 — Decodificador → Placa Captura</strong></td>
-        <td>HDMI 1.4 · 1m · qualquer marca confiável (Vinik, Fortrek)</td>
+        <td><strong>Cabo 1 — Decodificador → Splitter</strong></td>
+        <td>HDMI 1.4 · 1m a 2m · qualquer marca (Vinik, Fortrek)</td>
         <td><span class="tp">R$ 15–25</span></td>
         <td>Mercado Livre</td>
       </tr>
       <tr>
-        <td><strong>Cabo 2 — Mini PC → TV</strong></td>
+        <td><strong>Cabo 2 — Splitter → Placa Captura</strong></td>
+        <td>HDMI 1.4 · 0,5m a 1m</td>
+        <td><span class="tp">R$ 15–20</span></td>
+        <td>Mercado Livre</td>
+      </tr>
+      <tr>
+        <td><strong>Cabo 3 — Mini PC → TV</strong></td>
         <td>HDMI 2.0 · comprimento conforme distância (0,5m a 2m)</td>
         <td><span class="tp">R$ 20–40</span></td>
         <td>Mercado Livre</td>
@@ -574,10 +621,10 @@
         <td><span class="tp">R$ 25–45</span></td>
         <td>Mais firme que Command Strips</td>
       </tr>
-      <tr><th colspan="2" class="gh">TOTAL FASE 2 (sem reaproveitar placa)</th><td colspan="2"><span class="tp" style="font-size:14px; padding:5px 14px"><strong>R$ 620 – R$ 1.020</strong></span></td></tr>
-      <tr><th colspan="2" class="gh">TOTAL FASE 2 (reaproveitando placa do teste)</th><td colspan="2"><span class="tg" style="font-size:14px; padding:5px 14px"><strong>R$ 540 – R$ 800</strong></span></td></tr>
+      <tr><th colspan="2" class="gh">TOTAL FASE 2 (sem reaproveitar placa)</th><td colspan="2"><span class="tp" style="font-size:14px; padding:5px 14px"><strong>R$ 680 – R$ 1.100</strong></span></td></tr>
+      <tr><th colspan="2" class="gh">TOTAL FASE 2 (reaproveitando placa do teste)</th><td colspan="2"><span class="tg" style="font-size:14px; padding:5px 14px"><strong>R$ 580 – R$ 860</strong></span></td></tr>
     </table>
-    <div class="dica"><strong>Combinação recomendada:</strong> <strong>Beelink Mini S12 Pro</strong> + <strong>Elgato Cam Link 4K</strong> + <strong>Fita VHB 3M</strong>. Confiável, silencioso, liga 24h sem problema e cabe na palma da mão.</div>
+    <div class="dica"><strong>Combinação recomendada para Claro/NET:</strong> <strong>Beelink Mini S12 Pro</strong> + <strong>Elgato Cam Link 4K</strong> + <strong>Splitter HDMI 1x2 com fonte</strong> + <strong>Fita VHB 3M</strong>. Sinal estável 24h, sem tela preta, sem dor de cabeça.</div>
   </div>
 
   <div>
