@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Admin — General Water TV</title>
+<style>
+  :root {
+    --gw-azul:     #0063A6;
+    --gw-azul-esc: #001D3D;
+    --gw-ciano:    #00B4D8;
+    --gw-branco:   #FFFFFF;
+    --bg:          #F0F4F8;
+    --card:        #FFFFFF;
+    --border:      #D0DCE8;
+    --text:        #1A2E42;
+    --muted:       #6B8299;
+    --danger:      #DC3545;
+    --success:     #198754;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ─── HEADER ────────────────────────────────────── */
+  header {
+    background: var(--gw-azul-esc);
+    border-bottom: 3px solid var(--gw-ciano);
+    padding: 0 40px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+  .header-esq {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  header img {
+    height: 44px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+  }
+  .header-titulo {
+    border-left: 2px solid rgba(0,180,216,0.4);
+    padding-left: 20px;
+  }
+  .header-titulo h1 {
+    color: var(--gw-branco);
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .header-titulo p {
+    color: var(--gw-ciano);
+    font-size: 12px;
+    margin-top: 2px;
+  }
+  .header-acoes {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .btn-tv {
+    background: var(--gw-ciano);
+    color: var(--gw-azul-esc);
+    border: none;
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+  .btn-tv:hover { background: #00caf5; }
+  .status-badge {
+    background: rgba(0,180,216,0.15);
+    border: 1px solid rgba(0,180,216,0.4);
+    color: var(--gw-ciano);
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .status-badge.online { background: rgba(25,135,84,0.2); border-color: rgba(25,135,84,0.5); color: #2ecc71; }
+
+  /* ─── LAYOUT ────────────────────────────────────── */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 36px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* ─── CARD ──────────────────────────────────────── */
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .card-header {
+    background: var(--gw-azul-esc);
+    color: var(--gw-branco);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 2px solid var(--gw-ciano);
+  }
+  .card-header .icone {
+    font-size: 20px;
+    width: 32px;
+    text-align: center;
+  }
+  .card-header h2 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .card-header p {
+    font-size: 12px;
+    color: var(--gw-ciano);
+    margin-top: 2px;
+  }
+  .card-body {
+    padding: 24px;
+  }
+
+  /* ─── FORMULÁRIO ─────────────────────────────────── */
+  .campo { margin-bottom: 20px; }
+  .campo:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  input[type="text"], textarea, select {
+    width: 100%;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--text);
+    font-family: inherit;
+    background: var(--bg);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  input[type="text"]:focus,
+  textarea:focus,
+  select:focus { border-color: var(--gw-azul); background: white; }
+  textarea { resize: vertical; min-height: 90px; }
+
+  .linha-dupla {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* ─── COMUNICADOS ───────────────────────────────── */
+  #lista-form-comunicados {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .comunicado-form {
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .comunicado-form:hover { border-color: var(--gw-ciano); }
+  .comunicado-form.inativo { opacity: 0.5; }
+  .com-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .com-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gw-azul);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .com-acoes {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .toggle-switch {
+    position: relative;
+    width: 42px;
+    height: 22px;
+    cursor: pointer;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: #ccc;
+    border-radius: 22px;
+    transition: 0.3s;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    left: 3px; top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+  input:checked + .toggle-slider { background: var(--gw-azul); }
+  input:checked + .toggle-slider::before { transform: translateX(20px); }
+  .btn-remover {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--danger);
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .btn-remover:hover { background: #fff0f0; border-color: var(--danger); }
+  .com-campos {
+    display: grid;
+    grid-template-columns: 1fr 130px;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .btn-adicionar {
+    width: 100%;
+    background: none;
+    border: 2px dashed var(--border);
+    color: var(--gw-azul);
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+  .btn-adicionar:hover { border-color: var(--gw-azul); background: rgba(0,99,166,0.05); }
+
+  /* ─── TICKER ─────────────────────────────────────── */
+  #ticker-preview {
+    background: var(--gw-azul-esc);
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin-top: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  #ticker-preview span {
+    display: inline-block;
+    color: white;
+    font-size: 15px;
+    white-space: nowrap;
+    animation: ticker-prev 20s linear infinite;
+    padding-left: 100%;
+  }
+  @keyframes ticker-prev {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* ─── BOTÃO SALVAR ───────────────────────────────── */
+  .btn-salvar {
+    width: 100%;
+    background: var(--gw-azul);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(0,99,166,0.3);
+  }
+  .btn-salvar:hover { background: #0077cc; transform: translateY(-1px); }
+  .btn-salvar:active { transform: translateY(0); }
+
+  /* ─── TOAST ──────────────────────────────────────── */
+  #toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--success);
+    color: white;
+    padding: 14px 24px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 999;
+  }
+  #toast.visivel { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-esq">
+    <img src="https://generalwater.com.br/wp-content/uploads/2023/09/Logo-General-Water.png"
+         alt="General Water" onerror="this.style.display='none'">
+    <div class="header-titulo">
+      <h1>Painel de Controle</h1>
+      <p>TV Corporativa General Water</p>
+    </div>
+  </div>
+  <div class="header-acoes">
+    <span class="status-badge online" id="status-badge">● Conectado</span>
+    <a href="index.html" target="_blank" class="btn-tv">
+      &#9654; Abrir TV
+    </a>
+  </div>
+</header>
+
+<main>
+
+  <!-- ══ COMUNICADOS ══════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icone">📢</div>
+      <div>
+        <h2>Comunicados e Avisos</h2>
+        <p>Aparecem no painel lateral da TV (máx. 5)</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="lista-form-comunicados"></div>
+      <button class="btn-adicionar" onclick="adicionarComunicado()">+ Adicionar Comunicado</button>
+    </div>
+  </div>
+
+  <!-- ══ TICKER ════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icone">📰</div>
+      <div>
+        <h2>Ticker — Textos do Rodapé</h2>
+        <p>Texto que aparece rolando na parte inferior da TV</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="campo">
+        <label>Texto do Ticker (separe os itens com " | ")</label>
+        <textarea id="ticker-input" rows="3"
+          oninput="atualizarPreviewTicker()"></textarea>
+      </div>
+      <div id="ticker-preview"><span id="ticker-prev-txt"></span></div>
+    </div>
+  </div>
+
+  <!-- ══ INFORMAÇÕES DA EMPRESA ════════════════════════════ -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icone">🏢</div>
+      <div>
+        <h2>Informações da Empresa</h2>
+        <p>Rodapé do painel lateral</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="linha-dupla">
+        <div class="campo">
+          <label>Site</label>
+          <input type="text" id="site-input" placeholder="generalwater.com.br">
+        </div>
+        <div class="campo">
+          <label>Telefone / Ramal</label>
+          <input type="text" id="contato-input" placeholder="(11) 0000-0000">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ BOTÃO SALVAR ══════════════════════════════════════ -->
+  <button class="btn-salvar" onclick="salvarTudo()">
+    Aplicar na TV Agora
+  </button>
+
+</main>
+
+<div id="toast">✓ Atualizado na TV com sucesso!</div>
+
+<script>
+// ─── DADOS ──────────────────────────────────────────────────────────
+const DEFAULTS = {
+  comunicados: [
+    { id: 1, titulo: "Bem-vindo!", texto: "TV Corporativa General Water ativa.", hora: "Hoje", ativo: true },
+    { id: 2, titulo: "Segurança", texto: "Use sempre o EPI na área de produção.", hora: "Sempre", ativo: true },
+    { id: 3, titulo: "Reunião", texto: "Reunião geral toda segunda às 08h30.", hora: "Semanal", ativo: true }
+  ],
+  ticker: "Bem-vindo à General Water | Excelência em tratamento de água | Cuidamos da sua água com dedicação | Dúvidas? Fale com o RH pelo ramal 200 |",
+  contato: "(11) 0000-0000",
+  site: "generalwater.com.br"
+};
+
+let config = {};
+
+function carregarConfigs() {
+  try {
+    return JSON.parse(localStorage.getItem('gw_tv_config')) || JSON.parse(JSON.stringify(DEFAULTS));
+  } catch { return JSON.parse(JSON.stringify(DEFAULTS)); }
+}
+
+// ─── COMUNICADOS ─────────────────────────────────────────────────────
+function renderComunicados() {
+  const container = document.getElementById('lista-form-comunicados');
+  container.innerHTML = config.comunicados.map((c, i) => `
+    <div class="comunicado-form ${c.ativo ? '' : 'inativo'}" id="com-${c.id}">
+      <div class="com-header">
+        <span class="com-num">Comunicado ${i + 1}</span>
+        <div class="com-acoes">
+          <label class="toggle-switch" title="${c.ativo ? 'Desativar' : 'Ativar'}">
+            <input type="checkbox" ${c.ativo ? 'checked' : ''}
+              onchange="toggleComunicado(${c.id})">
+            <span class="toggle-slider"></span>
+          </label>
+          <button class="btn-remover" onclick="removerComunicado(${c.id})" title="Remover">✕</button>
+        </div>
+      </div>
+      <div class="com-campos">
+        <div class="campo" style="margin:0">
+          <label>Título</label>
+          <input type="text" value="${c.titulo}" placeholder="Título do aviso"
+            oninput="atualizarComunicado(${c.id}, 'titulo', this.value)">
+        </div>
+        <div class="campo" style="margin:0">
+          <label>Quando / Hora</label>
+          <input type="text" value="${c.hora}" placeholder="Hoje, 09h..."
+            oninput="atualizarComunicado(${c.id}, 'hora', this.value)">
+        </div>
+      </div>
+      <div class="campo" style="margin:0">
+        <label>Texto do comunicado</label>
+        <textarea rows="2" placeholder="Digite o aviso..."
+          oninput="atualizarComunicado(${c.id}, 'texto', this.value)">${c.texto}</textarea>
+      </div>
+    </div>
+  `).join('');
+}
+
+function atualizarComunicado(id, campo, valor) {
+  const c = config.comunicados.find(x => x.id === id);
+  if (c) c[campo] = valor;
+}
+
+function toggleComunicado(id) {
+  const c = config.comunicados.find(x => x.id === id);
+  if (c) {
+    c.ativo = !c.ativo;
+    document.getElementById('com-' + id).classList.toggle('inativo', !c.ativo);
+  }
+}
+
+function removerComunicado(id) {
+  config.comunicados = config.comunicados.filter(x => x.id !== id);
+  renderComunicados();
+}
+
+function adicionarComunicado() {
+  if (config.comunicados.length >= 5) {
+    alert('Máximo de 5 comunicados atingido. Remova um para adicionar novo.');
+    return;
+  }
+  const novoId = Date.now();
+  config.comunicados.push({ id: novoId, titulo: '', texto: '', hora: 'Agora', ativo: true });
+  renderComunicados();
+  document.getElementById('com-' + novoId).scrollIntoView({ behavior: 'smooth' });
+}
+
+// ─── TICKER ──────────────────────────────────────────────────────────
+function atualizarPreviewTicker() {
+  const txt = document.getElementById('ticker-input').value;
+  const prev = document.getElementById('ticker-prev-txt');
+  prev.textContent = txt + '   ' + txt;
+  config.ticker = txt;
+}
+
+// ─── SALVAR ───────────────────────────────────────────────────────────
+const channel = new BroadcastChannel('gw_tv');
+
+function coletarFormulario() {
+  config.ticker  = document.getElementById('ticker-input').value;
+  config.site    = document.getElementById('site-input').value;
+  config.contato = document.getElementById('contato-input').value;
+  // comunicados já são atualizados em tempo real
+}
+
+function salvarTudo() {
+  coletarFormulario();
+  localStorage.setItem('gw_tv_config', JSON.stringify(config));
+  channel.postMessage({ type: 'update', config });
+  mostrarToast();
+  document.getElementById('status-badge').textContent = '● Enviado';
+  document.getElementById('status-badge').classList.add('online');
+  setTimeout(() => {
+    document.getElementById('status-badge').textContent = '● Conectado';
+  }, 3000);
+}
+
+function mostrarToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('visivel');
+  setTimeout(() => t.classList.remove('visivel'), 3000);
+}
+
+// ─── INICIALIZAÇÃO ────────────────────────────────────────────────────
+function init() {
+  config = carregarConfigs();
+  renderComunicados();
+  document.getElementById('ticker-input').value = config.ticker || DEFAULTS.ticker;
+  document.getElementById('site-input').value   = config.site   || DEFAULTS.site;
+  document.getElementById('contato-input').value = config.contato || DEFAULTS.contato;
+  atualizarPreviewTicker();
+}
+
+init();
+</script>
+</body>
+</html>
