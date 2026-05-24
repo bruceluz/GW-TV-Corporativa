@@ -416,13 +416,18 @@
     <div class="card-header">
       <div class="icone">🎂</div>
       <div>
-        <h2>Aniversariantes do Mês</h2>
-        <p>Aparecem no canto inferior esquerdo da TV com destaque especial no dia</p>
+        <h2>Aniversariantes</h2>
+        <p>Faixa no rodapé da TV · destaque ouro=hoje, laranja=próximos 3 dias, azul=resto do mês</p>
       </div>
     </div>
     <div class="card-body">
+      <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+        <button class="btn-adicionar" style="flex:1;margin:0" onclick="adicionarAniversariante()">+ Adicionar manualmente</button>
+        <button class="btn-adicionar" style="flex:1;margin:0;border-color:var(--gw-ciano);color:var(--gw-ciano)" onclick="document.getElementById('csv-aniv-input').click()">📄 Importar CSV / Planilha</button>
+        <input type="file" id="csv-aniv-input" accept=".csv,.txt" style="display:none" onchange="importarCSV(this)">
+      </div>
+      <p style="color:var(--muted);font-size:12px;margin-bottom:16px">Formato CSV: colunas <strong>nome, setor, data</strong> (data no formato DD/MM). Salve como CSV UTF-8 no Excel.</p>
       <div id="lista-aniversariantes"></div>
-      <button class="btn-adicionar" onclick="adicionarAniversariante()">+ Adicionar aniversariante</button>
     </div>
   </div>
 
@@ -586,8 +591,9 @@ function salvarTudo() {
   }, 3000);
 }
 
-function mostrarToast() {
+function mostrarToast(msg) {
   const t = document.getElementById('toast');
+  t.textContent = msg || '✓ Atualizado na TV com sucesso!';
   t.classList.add('visivel');
   setTimeout(() => t.classList.remove('visivel'), 3000);
 }
@@ -597,7 +603,16 @@ function mostrarToast() {
 function renderAniversariantes() {
   if (!config.aniversariantes) config.aniversariantes = [];
   const c = document.getElementById('lista-aniversariantes');
-  c.innerHTML = config.aniversariantes.map((p, i) => `
+  if (config.aniversariantes.length === 0) {
+    c.innerHTML = '<p style="color:#8099AA;font-size:14px;padding:8px 0">Nenhum aniversariante cadastrado.</p>';
+    return;
+  }
+  c.innerHTML = config.aniversariantes.map((p, i) => {
+    const fotoSrc = p.foto || '';
+    const avatarHtml = fotoSrc
+      ? `<img src="${fotoSrc}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--gw-ciano);flex-shrink:0">`
+      : `<div style="width:46px;height:46px;border-radius:50%;background:var(--gw-azul);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0">${(p.nome||'?')[0].toUpperCase()}</div>`;
+    return `
     <div class="comunicado-form" style="margin-bottom:10px">
       <div class="com-header">
         <span class="com-num">🎂 ${p.nome || 'Aniversariante ' + (i+1)}</span>
@@ -605,34 +620,88 @@ function renderAniversariantes() {
           <button class="btn-remover" onclick="removerAniversariante(${i})">✕</button>
         </div>
       </div>
-      <div class="com-campos">
-        <div class="campo" style="margin:0">
-          <label>Nome completo</label>
-          <input type="text" value="${p.nome||''}" placeholder="Nome do colaborador"
-            oninput="config.aniversariantes[${i}].nome=this.value;renderAniversariantes()">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:4px">
+          ${avatarHtml}
+          <button onclick="document.getElementById('foto-input-${i}').click()"
+            style="font-size:10px;background:none;border:1px solid var(--border);border-radius:4px;padding:2px 6px;cursor:pointer;color:var(--muted)">foto</button>
+          <input type="file" id="foto-input-${i}" accept="image/*" style="display:none"
+            onchange="carregarFoto(this, ${i})">
         </div>
-        <div class="campo" style="margin:0">
-          <label>Dia do aniversário</label>
-          <input type="text" value="${p.dia||''}" placeholder="Ex: 24"
-            oninput="config.aniversariantes[${i}].dia=this.value">
+        <div style="flex:1">
+          <div class="com-campos" style="margin-bottom:10px">
+            <div class="campo" style="margin:0">
+              <label>Nome completo</label>
+              <input type="text" value="${p.nome||''}" placeholder="Nome do colaborador"
+                oninput="config.aniversariantes[${i}].nome=this.value;renderAniversariantes()">
+            </div>
+            <div class="campo" style="margin:0">
+              <label>Data (DD/MM)</label>
+              <input type="text" value="${p.data||p.dia||''}" placeholder="Ex: 24/05"
+                oninput="config.aniversariantes[${i}].data=this.value;delete config.aniversariantes[${i}].dia">
+            </div>
+          </div>
+          <div class="campo" style="margin:0">
+            <label>Setor / Área</label>
+            <input type="text" value="${p.setor||''}" placeholder="Ex: RH, Produção..."
+              oninput="config.aniversariantes[${i}].setor=this.value">
+          </div>
         </div>
       </div>
-      <div class="campo" style="margin:0;margin-top:10px">
-        <label>Setor / Área</label>
-        <input type="text" value="${p.setor||''}" placeholder="Ex: RH, Produção..."
-          oninput="config.aniversariantes[${i}].setor=this.value">
-      </div>
-    </div>
-  `).join('') || '<p style="color:#8099AA;font-size:14px;padding:8px 0">Nenhum aniversariante cadastrado.</p>';
+    </div>`;
+  }).join('');
 }
+
+function carregarFoto(input, i) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    config.aniversariantes[i].foto = e.target.result;
+    renderAniversariantes();
+  };
+  reader.readAsDataURL(file);
+}
+
 function adicionarAniversariante() {
   if (!config.aniversariantes) config.aniversariantes = [];
-  config.aniversariantes.push({ nome:'', dia:'', setor:'', ativo:true });
+  config.aniversariantes.push({ nome:'', data:'', setor:'', ativo:true });
   renderAniversariantes();
 }
+
 function removerAniversariante(i) {
   config.aniversariantes.splice(i, 1);
   renderAniversariantes();
+}
+
+// ─── IMPORTAR CSV ─────────────────────────────────────────────────────
+function importarCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const linhas = e.target.result.split(/\r?\n/).filter(l => l.trim());
+    if (!config.aniversariantes) config.aniversariantes = [];
+    let importados = 0;
+    linhas.forEach((linha, idx) => {
+      const cols = linha.split(/[,;]/).map(s => s.trim().replace(/^["']|["']$/g, ''));
+      if (cols.length < 2) return;
+      // Detecta linha de cabeçalho
+      const primeiraCol = cols[0].toLowerCase();
+      if (idx === 0 && (primeiraCol === 'nome' || primeiraCol === 'name')) return;
+      const nome  = cols[0] || '';
+      const setor = cols[1] || '';
+      const data  = cols[2] || '';
+      if (!nome) return;
+      config.aniversariantes.push({ nome, setor, data, ativo: true });
+      importados++;
+    });
+    renderAniversariantes();
+    input.value = '';
+    if (importados > 0) mostrarToast(`✓ ${importados} aniversariante(s) importado(s)!`);
+    else alert('Nenhum dado encontrado. Verifique o formato: nome, setor, data (DD/MM)');
+  };
+  reader.readAsText(file, 'UTF-8');
 }
 
 // ─── NOVAS CONTRATAÇÕES ──────────────────────────────────────────────

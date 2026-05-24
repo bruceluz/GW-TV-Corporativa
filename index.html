@@ -11,7 +11,9 @@
     --gw-branco:    #FFFFFF;
     --gw-cinza:     #B0C4D8;
     --painel-larg:  420px;
-    --ticker-alt:   58px;
+    --ticker-alt:   54px;
+    --bday-alt:     46px;
+    --rodape-total: calc(var(--ticker-alt) + var(--bday-alt));
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,7 +32,7 @@
     position: absolute;
     top: 0; left: 0;
     width: calc(1920px - var(--painel-larg));
-    height: calc(1080px - var(--ticker-alt));
+    height: calc(1080px - var(--rodape-total));
     object-fit: cover;
     background: #000;
     display: block;
@@ -40,7 +42,7 @@
     position: absolute;
     top: 0; left: 0;
     width: calc(1920px - var(--painel-larg));
-    height: calc(1080px - var(--ticker-alt));
+    height: calc(1080px - var(--rodape-total));
     background: linear-gradient(135deg, #000d1a 0%, #001D3D 50%, #000d1a 100%);
     display: flex;
     flex-direction: column;
@@ -409,12 +411,12 @@
     letter-spacing: 2px;
   }
 
-  /* ─── CARD FLUTUANTE (aniversariantes / novas contratações) ── */
+  /* ─── CARD FLUTUANTE (novas contratações) ─────────────── */
   #card-flutuante {
     position: absolute;
-    bottom: calc(var(--ticker-alt) + 16px);
+    bottom: calc(var(--rodape-total) + 16px);
     left: 20px;
-    width: 340px;
+    width: 320px;
     background: rgba(0, 20, 55, 0.93);
     border: 2px solid var(--gw-ciano);
     border-radius: 14px;
@@ -455,28 +457,88 @@
     font-size: 15px; font-weight: 800; color: white;
     flex-shrink: 0;
   }
-  .card-pessoa-info {}
   .card-pessoa-nome { color: white; font-size: 14px; font-weight: 700; }
   .card-pessoa-detalhe { color: var(--gw-ciano); font-size: 12px; margin-top: 2px; }
-  .card-pessoa.hoje {
-    background: rgba(255,215,0,0.1);
-    border-radius: 8px;
-    padding: 8px;
-    border: 1px solid rgba(255,215,0,0.3);
+
+  /* ─── BDAY STRIP (faixa de aniversariantes no rodapé) ── */
+  #bday-strip {
+    position: absolute;
+    bottom: var(--ticker-alt);
+    left: 0;
+    width: calc(1920px - var(--painel-larg));
+    height: var(--bday-alt);
+    background: rgba(0, 14, 40, 0.97);
+    border-top: 2px solid rgba(0,180,216,0.3);
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 0 18px;
+    overflow: hidden;
   }
-  .card-pessoa.hoje .card-avatar {
+  #bday-strip-label {
+    color: var(--gw-ciano);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-right: 12px;
+    border-right: 1px solid rgba(0,180,216,0.4);
+  }
+  #bday-pills {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+    flex-wrap: nowrap;
+  }
+  .bday-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .bday-pill.pill-hoje {
     background: linear-gradient(135deg, #f59e0b, #fbbf24);
-    box-shadow: 0 0 12px rgba(251,191,36,0.5);
-  }
-  .card-pessoa.hoje .card-pessoa-nome { color: #fde68a; }
-  .badge-hoje {
-    background: #f59e0b;
     color: #7c2d12;
-    font-size: 10px;
+    box-shadow: 0 0 14px rgba(251,191,36,0.5);
     font-weight: 800;
-    padding: 2px 8px;
-    border-radius: 10px;
-    margin-left: 6px;
+  }
+  .bday-pill.pill-proximos {
+    background: rgba(249,115,22,0.22);
+    border: 1px solid #f97316;
+    color: #fed7aa;
+    font-weight: 600;
+  }
+  .bday-pill.pill-mes {
+    background: rgba(0,99,166,0.3);
+    border: 1px solid rgba(0,180,216,0.25);
+    color: var(--gw-cinza);
+    font-weight: 500;
+  }
+  .pill-nome { font-weight: inherit; }
+  .pill-setor { font-size: 11px; opacity: 0.7; }
+  .pill-dia   { font-size: 11px; opacity: 0.6; }
+  .pill-foto {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(124,45,18,0.6);
+    flex-shrink: 0;
+  }
+  .pill-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(124,45,18,0.5);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 900;
+    flex-shrink: 0;
+    color: #7c2d12;
   }
 
   /* ─── ANIMAÇÕES ────────────────────────────────── */
@@ -521,11 +583,17 @@
   <span>AO VIVO</span>
 </div>
 
-<!-- Card flutuante: aniversariantes / novas contratações -->
+<!-- Faixa de aniversariantes no rodapé -->
+<div id="bday-strip">
+  <div id="bday-strip-label">🎂 Aniversariantes</div>
+  <div id="bday-pills"></div>
+</div>
+
+<!-- Card flutuante: novas contratações -->
 <div id="card-flutuante">
   <div id="card-flutuante-header">
-    <div id="card-flutuante-icone">🎂</div>
-    <div id="card-flutuante-titulo">Aniversariantes do Mês</div>
+    <div id="card-flutuante-icone">⭐</div>
+    <div id="card-flutuante-titulo">Bem-vindos à General Water!</div>
   </div>
   <div id="card-flutuante-body"></div>
 </div>
@@ -705,82 +773,109 @@ channel.onmessage = (e) => {
   if (e.data.type === 'update') {
     localStorage.setItem('gw_tv_config', JSON.stringify(e.data.config));
     aplicarConfigs(e.data.config);
-    renderCardFlutuante();
+    renderBdayStrip();
+    renderContratacoes();
   }
 };
 
-// ─── CARD FLUTUANTE (aniversariantes / novas contratações) ─────────
-const MODOS_CARD = [
-  { tipo: 'aniversariantes', icone: '🎂', titulo: 'Aniversariantes do Mês' },
-  { tipo: 'contratacoes',    icone: '⭐', titulo: 'Bem-vindos à General Water!' }
-];
-let modoCardAtual = 0;
+// ─── FAIXA DE ANIVERSARIANTES (próximos 3 dias) ────────────────────
+function parseDia(p) {
+  // Suporta campo "data" = "DD/MM" ou campo legado "dia" = número
+  if (p.data) {
+    const parts = p.data.split('/');
+    return { dia: parseInt(parts[0]), mes: parseInt(parts[1]) };
+  }
+  return { dia: parseInt(p.dia) || 0, mes: null };
+}
 
-function renderCardFlutuante() {
+function renderBdayStrip() {
+  const cfg = carregarConfigs();
+  const strip = document.getElementById('bday-strip');
+  const pills = document.getElementById('bday-pills');
+  const lista = (cfg.aniversariantes || []).filter(p => p.ativo !== false);
+
+  if (lista.length === 0) { strip.style.display = 'none'; return; }
+
+  const agora = new Date();
+  const hojeD = agora.getDate();
+  const hojeM = agora.getMonth() + 1;
+
+  const visiveis = lista
+    .map(p => {
+      const { dia, mes } = parseDia(p);
+      if (!dia) return null;
+
+      let diffDias;
+      if (mes !== null) {
+        // Modo completo DD/MM: mostra apenas quem tem aniversário no mês atual
+        if (mes !== hojeM) return null;
+        diffDias = dia - hojeD;
+      } else {
+        // Modo legado (só dia): trata como mês atual
+        diffDias = dia - hojeD;
+      }
+      // Mostra do dia atual até o fim do mês; ignora passados
+      if (diffDias < 0) return null;
+      return { ...p, diffDias, dia, mes };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.diffDias - b.diffDias);
+
+  if (visiveis.length === 0) { strip.style.display = 'none'; return; }
+
+  pills.innerHTML = visiveis.map(p => {
+    let cls;
+    if (p.diffDias === 0)      cls = 'pill-hoje';
+    else if (p.diffDias <= 3)  cls = 'pill-proximos';
+    else                       cls = 'pill-mes';
+
+    const dataLabel = p.mes
+      ? ` · ${String(p.dia).padStart(2,'0')}/${String(p.mes).padStart(2,'0')}`
+      : (p.dia ? ` · dia ${p.dia}` : '');
+
+    let avatarHtml = '';
+    if (p.diffDias === 0) {
+      const iniciais = p.nome.split(' ').map(x => x[0]).slice(0, 2).join('').toUpperCase();
+      avatarHtml = p.foto
+        ? `<img src="${p.foto}" class="pill-foto" alt="">`
+        : `<span class="pill-avatar">${iniciais}</span>`;
+    }
+
+    const emoji = p.diffDias === 0 ? '🎂 ' : '';
+    return `<span class="bday-pill ${cls}">${avatarHtml}${emoji}<span class="pill-nome">${p.nome}</span><span class="pill-setor"> · ${p.setor}${dataLabel}</span></span>`;
+  }).join('');
+
+  strip.style.display = 'flex';
+}
+
+// ─── CARD FLUTUANTE (novas contratações) ──────────────────────────
+function renderContratacoes() {
   const cfg = carregarConfigs();
   const card = document.getElementById('card-flutuante');
-
-  const aniv = (cfg.aniversariantes || []).filter(p => p.ativo !== false);
   const cont = (cfg.contratacoes || []).filter(p => p.ativo !== false);
 
-  if (aniv.length === 0 && cont.length === 0) {
-    card.style.display = 'none';
-    return;
-  }
+  if (cont.length === 0) { card.style.display = 'none'; return; }
 
-  // Alterna entre os dois tipos a cada 10s
-  function mostrarModo(idx) {
-    const modo = MODOS_CARD[idx];
-    const lista = modo.tipo === 'aniversariantes' ? aniv : cont;
-    if (lista.length === 0) return false;
+  document.getElementById('card-flutuante-body').innerHTML = cont.slice(0, 5).map(p => {
+    const iniciais = p.nome.split(' ').map(x => x[0]).slice(0, 2).join('').toUpperCase();
+    return `
+      <div class="card-pessoa">
+        <div class="card-avatar">${iniciais}</div>
+        <div>
+          <div class="card-pessoa-nome">${p.nome}</div>
+          <div class="card-pessoa-detalhe">Bem-vindo(a) · ${p.setor}</div>
+        </div>
+      </div>`;
+  }).join('');
 
-    document.getElementById('card-flutuante-icone').textContent = modo.icone;
-    document.getElementById('card-flutuante-titulo').textContent = modo.titulo;
-
-    const hoje = new Date().getDate();
-    document.getElementById('card-flutuante-body').innerHTML = lista.slice(0, 4).map(p => {
-      const iniciais = p.nome.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();
-      const eHoje = modo.tipo === 'aniversariantes' && parseInt(p.dia) === hoje;
-      const detalhe = modo.tipo === 'aniversariantes'
-        ? (p.dia ? `Dia ${p.dia} · ${p.setor}` : p.setor)
-        : `Bem-vindo(a) · ${p.setor}`;
-      return `
-        <div class="card-pessoa ${eHoje ? 'hoje' : ''}">
-          <div class="card-avatar">${eHoje ? '🎂' : iniciais}</div>
-          <div class="card-pessoa-info">
-            <div class="card-pessoa-nome">${p.nome}${eHoje ? '<span class="badge-hoje">HOJE!</span>' : ''}</div>
-            <div class="card-pessoa-detalhe">${detalhe}</div>
-          </div>
-        </div>`;
-    }).join('');
-
-    card.style.display = 'block';
-    return true;
-  }
-
-  function ciclar() {
-    const temAniv = aniv.length > 0;
-    const temCont = cont.length > 0;
-
-    // Se só tem um tipo, mostra só ele
-    if (temAniv && !temCont) { mostrarModo(0); return; }
-    if (!temAniv && temCont) { mostrarModo(1); return; }
-
-    // Alterna
-    mostrarModo(modoCardAtual);
-    modoCardAtual = (modoCardAtual + 1) % 2;
-  }
-
-  ciclar();
-  // Reexibe a cada 10 segundos alternando
-  clearInterval(window._cardInterval);
-  window._cardInterval = setInterval(ciclar, 10000);
+  card.style.display = 'block';
 }
 
 // ─── INICIALIZAÇÃO ─────────────────────────────────────────────────
 (async function init() {
   aplicarConfigs(carregarConfigs());
-  renderCardFlutuante();
+  renderBdayStrip();
+  renderContratacoes();
   await listarDispositivos();
 
   // Se já tem câmera salva, pergunta se quer reconectar automaticamente
