@@ -492,15 +492,32 @@
           <span style="font-size:13px;font-weight:600;color:var(--text)">Exibir na TV</span>
         </div>
       </div>
-      <div id="lista-media-itens" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-        <button class="btn-adicionar" style="flex:1;margin:0" onclick="document.getElementById('media-img-input').click()">🖼️ Adicionar Imagens</button>
+      <div id="lista-media-itens" style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px"></div>
+
+      <!-- Imagens -->
+      <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.5px;margin-bottom:10px">🖼️ IMAGENS</div>
+        <button class="btn-adicionar" style="margin:0;width:100%" onclick="document.getElementById('media-img-input').click()">Selecionar imagens do computador (múltiplas)</button>
         <input type="file" id="media-img-input" accept="image/*" multiple style="display:none" onchange="adicionarImagensMedia(this)">
       </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input type="text" id="media-yt-url" placeholder="Cole aqui o link do YouTube e clique em Adicionar"
-          style="flex:1" onkeydown="if(event.key==='Enter')adicionarVideoMedia()">
-        <button class="btn-adicionar" style="margin:0;white-space:nowrap;border-color:var(--gw-ciano);color:var(--gw-ciano);padding:12px 18px" onclick="adicionarVideoMedia()">▶ Adicionar</button>
+
+      <!-- Vídeo YouTube -->
+      <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.5px;margin-bottom:10px">▶ VÍDEO DO YOUTUBE</div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="media-yt-url" placeholder="https://youtube.com/watch?v=..."
+            style="flex:1" onkeydown="if(event.key==='Enter')adicionarVideoMedia()">
+          <button class="btn-adicionar" style="margin:0;white-space:nowrap;border-color:var(--gw-ciano);color:var(--gw-ciano);padding:12px 18px" onclick="adicionarVideoMedia()">+ Adicionar</button>
+        </div>
+        <p id="media-yt-feedback" style="font-size:12px;margin-top:6px;display:none"></p>
+      </div>
+
+      <!-- Vídeo arquivo local -->
+      <div style="border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.5px;margin-bottom:10px">📁 VÍDEO DO COMPUTADOR (MP4, WebM)</div>
+        <button class="btn-adicionar" style="margin:0;width:100%;border-color:#7c3aed;color:#7c3aed" onclick="document.getElementById('media-vid-input').click()">Selecionar arquivo de vídeo</button>
+        <input type="file" id="media-vid-input" accept="video/*" style="display:none" onchange="adicionarArquivoVideoMedia(this)">
+        <p style="font-size:11px;color:var(--muted);margin-top:6px">Recomendado: MP4 até 100 MB. Arquivos grandes podem demorar para carregar.</p>
       </div>
     </div>
   </div>
@@ -830,14 +847,51 @@ function adicionarImagensMedia(input) {
   input.value = '';
 }
 
+function ytIdAdmin(url) {
+  const m = url.match(/(?:[?&]v=|youtu\.be\/|\/embed\/|\/shorts\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
 function adicionarVideoMedia() {
   const campo = document.getElementById('media-yt-url');
+  const feedback = document.getElementById('media-yt-feedback');
   const url = campo.value.trim();
   if (!url) { campo.focus(); return; }
+
+  const id = ytIdAdmin(url);
+  if (!id) {
+    feedback.textContent = '⚠️ Link não reconhecido. Use o formato: youtube.com/watch?v=CODIGO ou youtu.be/CODIGO';
+    feedback.style.color = '#DC3545';
+    feedback.style.display = 'block';
+    return;
+  }
+
   if (!config.media) config.media = { ativo: true, posicao: 'tl', tamanho: 'm', duracao: 8, itens: [] };
   config.media.itens.push({ tipo: 'video', url, titulo: '' });
   campo.value = '';
+  feedback.textContent = '✓ Vídeo adicionado! ID: ' + id;
+  feedback.style.color = '#198754';
+  feedback.style.display = 'block';
+  setTimeout(() => feedback.style.display = 'none', 3000);
   renderMediaAdmin();
+}
+
+function adicionarArquivoVideoMedia(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 120 * 1024 * 1024) {
+    alert('Arquivo muito grande (' + (file.size/1024/1024).toFixed(0) + ' MB). Use até 100 MB ou prefira o YouTube.');
+    input.value = '';
+    return;
+  }
+  if (!config.media) config.media = { ativo: true, posicao: 'tl', tamanho: 'm', duracao: 8, itens: [] };
+  const reader = new FileReader();
+  reader.onload = e => {
+    config.media.itens.push({ tipo: 'video-local', src: e.target.result, titulo: file.name.replace(/\.[^.]+$/, '') });
+    renderMediaAdmin();
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
 }
 
 function removerMedia(i) {
