@@ -912,7 +912,8 @@ let _mediaTimer = null;
 let _mediaIdx   = 0;
 
 function ytId(url) {
-  const m = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+  // Suporta: watch?v=, youtu.be/, embed/, shorts/
+  const m = url.match(/(?:[?&]v=|youtu\.be\/|\/embed\/|\/shorts\/)([A-Za-z0-9_-]{11})/);
   return m ? m[1] : null;
 }
 
@@ -942,7 +943,7 @@ function renderMediaBox() {
     if (item.tipo === 'video') {
       const id = ytId(item.url || '');
       if (id) {
-        conteudo = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0" allow="autoplay;encrypted-media" allowfullscreen></iframe>`;
+        conteudo = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&rel=0&modestbranding=1" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>`;
       } else {
         conteudo = `<video src="${item.url||''}" autoplay muted loop playsinline></video>`;
       }

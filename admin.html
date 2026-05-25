@@ -493,10 +493,14 @@
         </div>
       </div>
       <div id="lista-media-itens" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
         <button class="btn-adicionar" style="flex:1;margin:0" onclick="document.getElementById('media-img-input').click()">🖼️ Adicionar Imagens</button>
-        <button class="btn-adicionar" style="flex:1;margin:0;border-color:var(--gw-ciano);color:var(--gw-ciano)" onclick="adicionarVideoMedia()">▶ Adicionar Vídeo (YouTube/URL)</button>
         <input type="file" id="media-img-input" accept="image/*" multiple style="display:none" onchange="adicionarImagensMedia(this)">
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="media-yt-url" placeholder="Cole aqui o link do YouTube e clique em Adicionar"
+          style="flex:1" onkeydown="if(event.key==='Enter')adicionarVideoMedia()">
+        <button class="btn-adicionar" style="margin:0;white-space:nowrap;border-color:var(--gw-ciano);color:var(--gw-ciano);padding:12px 18px" onclick="adicionarVideoMedia()">▶ Adicionar</button>
       </div>
     </div>
   </div>
@@ -827,10 +831,12 @@ function adicionarImagensMedia(input) {
 }
 
 function adicionarVideoMedia() {
-  const url = prompt('Cole a URL do YouTube ou link direto do vídeo:');
-  if (!url || !url.trim()) return;
+  const campo = document.getElementById('media-yt-url');
+  const url = campo.value.trim();
+  if (!url) { campo.focus(); return; }
   if (!config.media) config.media = { ativo: true, posicao: 'tl', tamanho: 'm', duracao: 8, itens: [] };
-  config.media.itens.push({ tipo: 'video', url: url.trim(), titulo: '' });
+  config.media.itens.push({ tipo: 'video', url, titulo: '' });
+  campo.value = '';
   renderMediaAdmin();
 }
 
