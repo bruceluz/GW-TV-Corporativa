@@ -504,12 +504,29 @@
       <!-- Vídeo YouTube -->
       <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px">
         <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.5px;margin-bottom:10px">▶ VÍDEO DO YOUTUBE</div>
-        <div style="display:flex;gap:8px">
-          <input type="text" id="media-yt-url" placeholder="https://youtube.com/watch?v=..."
-            style="flex:1" onkeydown="if(event.key==='Enter')adicionarVideoMedia()">
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <input type="text" id="media-yt-url" placeholder="Cole o link aqui: youtube.com/watch?v=... ou youtu.be/..."
+            style="flex:1" oninput="previewYoutube(this.value)" onkeydown="if(event.key==='Enter')adicionarVideoMedia()">
           <button class="btn-adicionar" style="margin:0;white-space:nowrap;border-color:var(--gw-ciano);color:var(--gw-ciano);padding:12px 18px" onclick="adicionarVideoMedia()">+ Adicionar</button>
         </div>
-        <p id="media-yt-feedback" style="font-size:12px;margin-top:6px;display:none"></p>
+        <!-- Preview ao colar o link -->
+        <div id="yt-preview-box" style="display:none;background:#f0f4f8;border-radius:8px;padding:10px;display:none;align-items:center;gap:12px">
+          <img id="yt-preview-thumb" src="" alt="" style="width:100px;height:56px;border-radius:6px;object-fit:cover;flex-shrink:0">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#198754">✓ Vídeo do YouTube detectado</div>
+            <div id="yt-preview-id" style="font-size:11px;color:var(--muted);margin-top:2px"></div>
+            <div style="font-size:11px;color:var(--muted)">Clique em "+ Adicionar" para incluir no slideshow</div>
+          </div>
+        </div>
+        <!-- Erro de formato -->
+        <div id="yt-erro-box" style="display:none;background:#fff5f5;border:1px solid #fca5a5;border-radius:8px;padding:10px">
+          <div style="font-size:12px;font-weight:700;color:#DC3545;margin-bottom:6px">⚠️ Formato de link não reconhecido</div>
+          <div style="font-size:11px;color:#991b1b">Formatos aceitos:<br>
+            • <code>https://youtube.com/watch?v=CODIGO</code><br>
+            • <code>https://youtu.be/CODIGO</code><br>
+            • <code>https://youtube.com/shorts/CODIGO</code>
+          </div>
+        </div>
       </div>
 
       <!-- Vídeo arquivo local -->
@@ -848,31 +865,56 @@ function adicionarImagensMedia(input) {
 }
 
 function ytIdAdmin(url) {
-  const m = url.match(/(?:[?&]v=|youtu\.be\/|\/embed\/|\/shorts\/)([A-Za-z0-9_-]{11})/);
-  return m ? m[1] : null;
+  url = (url || '').trim();
+  const padroes = [
+    /[?&]v=([A-Za-z0-9_-]{11})/,
+    /youtu\.be\/([A-Za-z0-9_-]{11})/,
+    /\/embed\/([A-Za-z0-9_-]{11})/,
+    /\/shorts\/([A-Za-z0-9_-]{11})/,
+    /\/live\/([A-Za-z0-9_-]{11})/,
+    /\/v\/([A-Za-z0-9_-]{11})/,
+  ];
+  for (const p of padroes) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function previewYoutube(url) {
+  const preview = document.getElementById('yt-preview-box');
+  const erro    = document.getElementById('yt-erro-box');
+  url = (url || '').trim();
+  if (!url) { preview.style.display = 'none'; erro.style.display = 'none'; return; }
+
+  const id = ytIdAdmin(url);
+  if (id) {
+    document.getElementById('yt-preview-thumb').src = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+    document.getElementById('yt-preview-id').textContent = 'ID: ' + id;
+    preview.style.display = 'flex';
+    erro.style.display = 'none';
+  } else if (url.length > 10) {
+    preview.style.display = 'none';
+    erro.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+    erro.style.display = 'none';
+  }
 }
 
 function adicionarVideoMedia() {
   const campo = document.getElementById('media-yt-url');
-  const feedback = document.getElementById('media-yt-feedback');
   const url = campo.value.trim();
   if (!url) { campo.focus(); return; }
 
   const id = ytIdAdmin(url);
-  if (!id) {
-    feedback.textContent = '⚠️ Link não reconhecido. Use o formato: youtube.com/watch?v=CODIGO ou youtu.be/CODIGO';
-    feedback.style.color = '#DC3545';
-    feedback.style.display = 'block';
-    return;
-  }
+  if (!id) { previewYoutube(url); return; }
 
   if (!config.media) config.media = { ativo: true, posicao: 'tl', tamanho: 'm', duracao: 8, itens: [] };
   config.media.itens.push({ tipo: 'video', url, titulo: '' });
   campo.value = '';
-  feedback.textContent = '✓ Vídeo adicionado! ID: ' + id;
-  feedback.style.color = '#198754';
-  feedback.style.display = 'block';
-  setTimeout(() => feedback.style.display = 'none', 3000);
+  document.getElementById('yt-preview-box').style.display = 'none';
+  document.getElementById('yt-erro-box').style.display   = 'none';
   renderMediaAdmin();
 }
 
