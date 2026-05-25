@@ -459,7 +459,7 @@
       <div class="linha-dupla" style="margin-bottom:16px">
         <div class="campo" style="margin:0">
           <label>Posição na tela</label>
-          <select id="media-posicao" onchange="config.media.posicao=this.value">
+          <select id="media-posicao" onchange="garantirMedia();config.media.posicao=this.value">
             <option value="tl">Canto superior esquerdo</option>
             <option value="tr">Canto superior direito</option>
             <option value="bl">Canto inferior esquerdo</option>
@@ -470,7 +470,7 @@
         </div>
         <div class="campo" style="margin:0">
           <label>Tamanho</label>
-          <select id="media-tamanho" onchange="config.media.tamanho=this.value">
+          <select id="media-tamanho" onchange="garantirMedia();config.media.tamanho=this.value">
             <option value="p">Pequeno (380×214)</option>
             <option value="m">Médio (560×315)</option>
             <option value="g">Grande (760×428)</option>
@@ -482,11 +482,11 @@
         <div class="campo" style="margin:0">
           <label>Duração por slide (segundos)</label>
           <input type="text" id="media-duracao" placeholder="8"
-            oninput="config.media.duracao=parseInt(this.value)||8">
+            oninput="garantirMedia();config.media.duracao=parseInt(this.value)||8">
         </div>
         <div class="campo" style="margin:0;display:flex;align-items:center;gap:10px;padding-bottom:2px">
           <label class="toggle-switch" style="margin:0">
-            <input type="checkbox" id="media-ativo" onchange="config.media.ativo=this.checked">
+            <input type="checkbox" id="media-ativo" onchange="garantirMedia();config.media.ativo=this.checked">
             <span class="toggle-slider"></span>
           </label>
           <span style="font-size:13px;font-weight:600;color:var(--text)">Exibir na TV</span>
@@ -817,7 +817,7 @@ function removerContratacao(i) {
 
 // ─── MÍDIA CORPORATIVA ───────────────────────────────────────────────
 function renderMediaAdmin() {
-  if (!config.media) config.media = { ativo: false, posicao: 'tl', tamanho: 'm', duracao: 8, itens: [] };
+  garantirMedia();
   const m = config.media;
   document.getElementById('media-posicao').value = m.posicao || 'tl';
   document.getElementById('media-tamanho').value = m.tamanho || 'm';
@@ -850,7 +850,7 @@ function renderMediaAdmin() {
 }
 
 function adicionarImagensMedia(input) {
-  if (!config.media) config.media = { ativo: true, posicao: 'tl', tamanho: 'm', duracao: 8, itens: [] };
+  garantirMedia();
   const files = Array.from(input.files);
   let loaded = 0;
   files.forEach(file => {
@@ -902,6 +902,11 @@ function previewYoutube(url) {
   }
 }
 
+function garantirMedia() {
+  if (!config.media)        config.media = { ativo: false, posicao: 'tl', tamanho: 'm', duracao: 8, itens: [] };
+  if (!config.media.itens)  config.media.itens = [];
+}
+
 function adicionarVideoMedia() {
   const campo = document.getElementById('media-yt-url');
   const url = campo.value.trim();
@@ -910,7 +915,7 @@ function adicionarVideoMedia() {
   const id = ytIdAdmin(url);
   if (!id) { previewYoutube(url); return; }
 
-  if (!config.media) config.media = { ativo: true, posicao: 'tl', tamanho: 'm', duracao: 8, itens: [] };
+  garantirMedia();
   config.media.itens.push({ tipo: 'video', url, titulo: '' });
   campo.value = '';
   document.getElementById('yt-preview-box').style.display = 'none';
@@ -926,7 +931,7 @@ function adicionarArquivoVideoMedia(input) {
     input.value = '';
     return;
   }
-  if (!config.media) config.media = { ativo: true, posicao: 'tl', tamanho: 'm', duracao: 8, itens: [] };
+  garantirMedia();
   const reader = new FileReader();
   reader.onload = e => {
     config.media.itens.push({ tipo: 'video-local', src: e.target.result, titulo: file.name.replace(/\.[^.]+$/, '') });
